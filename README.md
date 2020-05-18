@@ -15,13 +15,19 @@ A DL course project
   当前游戏画面渲染
 - step(action)
   游戏向前运行一帧
+  
   params:
-    action:发出的动作指令，0为不转向，1为左转，2为右转
+  
+    - action:发出的动作指令，0为不转向，1为左转，2为右转
+  
   return：
-    observation: 目前车辆五个方向距障碍物的距离数组[l1,l2,l3,l4,l5]
-    reward: 奖励，正常状态为1，碰撞为-1
-    terminal: 游戏是否结束，0为未结束，1为失败，2为成功（游戏结束后不会再调用step方法）
+    
+    - observation: 目前车辆五个方向距障碍物的距离数组[l1,l2,l3,l4,l5]
+    - reward: 奖励，正常状态为1，碰撞为-1
+    - terminal: 游戏是否结束，0为未结束，1为失败，2为成功（游戏结束后不会再调用step方法）
+    
 - reset()：
     重置游戏状态
+    
 - destroy():
     退出游戏
