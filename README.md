@@ -23,7 +23,7 @@ A DL course project
   return：
     
     - observation: 目前车辆五个方向距障碍物的距离数组[l1,l2,l3,l4,l5]
-    - reward: 奖励，正常状态为1，碰撞为-1
+    - reward: 奖励，正常状态为距终点的路程（不知道是否必要），归一化为0（起点）-100（终点），碰撞为-1
     - terminal: 游戏是否结束，0为未结束，1为失败，2为成功（游戏结束后不会再调用step方法）
     
 - reset()：
