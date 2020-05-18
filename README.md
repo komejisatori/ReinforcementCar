@@ -13,13 +13,15 @@ A DL course project
 # 接口定义
 - render()：
   当前游戏画面渲染
-- step(action)：
+- step(action, training=True)：
   游戏向前运行一帧
   
   **在这里同时也要读取玩家的键盘输入**
+  
   params:
   
     - action:发出的动作指令，0为不转向，1为左转，2为右转
+    - training:是否在训练，为False则还需要读取玩家键盘输入
   
   return：
     
