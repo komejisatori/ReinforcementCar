@@ -11,11 +11,12 @@ A DL course project
 模型可视化，展示运行过程中的模型推理
 
 # 接口定义
-- render()
+- render()：
   当前游戏画面渲染
-- step(action)
+- step(action)：
   游戏向前运行一帧
   
+  **在这里同时也要读取玩家的键盘输入**
   params:
   
     - action:发出的动作指令，0为不转向，1为左转，2为右转
@@ -27,7 +28,7 @@ A DL course project
     - terminal: 游戏是否结束，0为未结束，1为失败，2为成功（游戏结束后不会再调用step方法）
     
 - reset()：
-    重置游戏状态
+  重置游戏状态
     
 - destroy():
-    退出游戏
+  退出游戏
