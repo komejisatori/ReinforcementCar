@@ -16,24 +16,21 @@ class CarGame:
         self._init_player_car()
 
     def _init_setting(self):
-        # 初始化pygame
+
         pygame.init()
-
-        self.map_width, self.map_height = GAME_SETTING.GAME_SCREEN_WIDTH, GAME_SETTING.GAME_SCREEN_HEIGHT
-        self.map_size = self.map_width, self.map_height
-        self.speed = [-2, 1]
-
-        # 背景设置，全白
-        self.color_bg = (255, 255, 255)
-        self.img_bg = pygame.image.load(RESOURCE.IMAGE_COVER_FILE_PATH)
-
-        # 创建指定大小的窗口 Surface对象
-        self.screen = pygame.display.set_mode(self.map_size)
-        # 设置窗口标题
         pygame.display.set_caption(GAME_SETTING.GAME_TITLE)
         img_icon = pygame.image.load(RESOURCE.IMAGE_ICON_FILE_PATH)
         pygame.display.set_icon(img_icon)
 
+        # screen
+        self.map_width, self.map_height = GAME_SETTING.GAME_SCREEN_WIDTH, GAME_SETTING.GAME_SCREEN_HEIGHT
+        self.map_size = self.map_width, self.map_height
+        self.screen = pygame.display.set_mode(self.map_size)
+
+        # background
+        self.color_bg = (255, 255, 255)
+
+        # player car
         self.img_car = pygame.image.load(RESOURCE.IMAGE_CAR_FILE_PATH)
         self.img_car = pygame.transform.scale(self.img_car, (GAME_SETTING.GAME_CAR_WIDTH, GAME_SETTING.GAME_CAR_HEIGHT))
 
@@ -51,40 +48,50 @@ class CarGame:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     exit()
-
                 if event.type == KEYDOWN:
+                    self._deal_with_key_down(event)
 
-                    if event.key == K_LEFT:
-                        print(f'[event] left key pushed.')
-                        self.player_car.turn_left()
+            self._move_player_car()
+            self._refresh_screen()
 
-                    if event.key == K_RIGHT:
-                        print(f'[event] right key pushed.')
-                        self.player_car.turn_right()
+    def _deal_with_key_down(self, event):
+        """
+        deal with the key down event
+        :param event:
+        :return:
+        """
+        if event.key == K_LEFT:
+            print(f'[event] left key pushed.')
+            self.player_car.turn_left()
 
-                    if event.key == K_UP:
-                        print(f'[event] up key pushed.')
-                        self.player_car.turn_up()
+        if event.key == K_RIGHT:
+            print(f'[event] right key pushed.')
+            self.player_car.turn_right()
 
-                    if event.key == K_DOWN:
-                        print(f'[event] down key pushed.')
-                        self.player_car.turn_down()
+        if event.key == K_UP:
+            print(f'[event] up key pushed.')
+            self.player_car.turn_up()
 
-            # TODO: move the object
-            self.position = self.position.move(self.player_car.velocity.to_pygame_speed())
-            self._deal_with_boarder_situation()
+        if event.key == K_DOWN:
+            print(f'[event] down key pushed.')
+            self.player_car.turn_down()
 
-            # fill bg
-            self.screen.fill(self.color_bg)
-            # 更新图像
-            self.screen.blit(self.img_car, self.position)
-            # 更新界面
-            pygame.display.flip()
-            # 延时
-            pygame.time.delay(50)
+    def _move_player_car(self):
+        # move the object
+        self.position = self.position.move(self.player_car.velocity.to_pygame_speed())
+        self.__deal_with_boarder_situation()
 
-    def _deal_with_boarder_situation(self):
-        print(f'self.position.right{self.position.right}, self.map_width: {self.map_width}')
+    def _refresh_screen(self):
+        # fill bg
+        self.screen.fill(self.color_bg)
+        # 更新图像
+        self.screen.blit(self.img_car, self.position)
+        # 更新界面
+        pygame.display.flip()
+        # 延时
+        pygame.time.delay(50)
+
+    def __deal_with_boarder_situation(self):
         if self.position.left < 0 or self.position.right > self.map_width:
             self.player_car.rebound_horizontally()
         if self.position.top < 0 or self.position.bottom > self.map_height:
