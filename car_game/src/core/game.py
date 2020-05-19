@@ -19,7 +19,8 @@ class CarGame:
         # 初始化pygame
         pygame.init()
 
-        size = width, height = GAME_SETTING.GAME_SCREEN_WIDTH, GAME_SETTING.GAME_SCREEN_HEIGHT
+        self.map_width, self.map_height = GAME_SETTING.GAME_SCREEN_WIDTH, GAME_SETTING.GAME_SCREEN_HEIGHT
+        self.map_size = self.map_width, self.map_height
         self.speed = [-2, 1]
 
         # 背景设置，全白
@@ -27,17 +28,17 @@ class CarGame:
         self.img_bg = pygame.image.load(RESOURCE.IMAGE_COVER_FILE_PATH)
 
         # 创建指定大小的窗口 Surface对象
-        self.screen = pygame.display.set_mode(size)
+        self.screen = pygame.display.set_mode(self.map_size)
         # 设置窗口标题
         pygame.display.set_caption(GAME_SETTING.GAME_TITLE)
         img_icon = pygame.image.load(RESOURCE.IMAGE_ICON_FILE_PATH)
         pygame.display.set_icon(img_icon)
 
-        img_car = pygame.image.load(RESOURCE.IMAGE_CAR_FILE_PATH)
-        self.img_car = pygame.transform.scale(img_car, (GAME_SETTING.GAME_CAR_WIDTH, GAME_SETTING.GAME_CAR_HEIGHT))
+        self.img_car = pygame.image.load(RESOURCE.IMAGE_CAR_FILE_PATH)
+        self.img_car = pygame.transform.scale(self.img_car, (GAME_SETTING.GAME_CAR_WIDTH, GAME_SETTING.GAME_CAR_HEIGHT))
 
         # 获得图像的位置矩形
-        self.position = img_car.get_rect()
+        self.position = self.img_car.get_rect()
 
     def _init_player_car(self):
         self.start_point = EnvironmentPosition(20, 20)
@@ -71,6 +72,7 @@ class CarGame:
 
             # TODO: move the object
             self.position = self.position.move(self.player_car.velocity.to_pygame_speed())
+            self._deal_with_boarder_situation()
 
             # fill bg
             self.screen.fill(self.color_bg)
@@ -80,6 +82,13 @@ class CarGame:
             pygame.display.flip()
             # 延时
             pygame.time.delay(50)
+
+    def _deal_with_boarder_situation(self):
+        print(f'self.position.right{self.position.right}, self.map_width: {self.map_width}')
+        if self.position.left < 0 or self.position.right > self.map_width:
+            self.player_car.rebound_horizontally()
+        if self.position.top < 0 or self.position.bottom > self.map_height:
+            self.player_car.rebound_vertically()\
 
 
 def start_game():

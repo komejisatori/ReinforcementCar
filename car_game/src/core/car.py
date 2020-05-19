@@ -19,8 +19,28 @@ class CarVelocity:
     def to_pygame_speed(self):
         return [self.right, self.down]
 
+    def increase_right(self, value):
+        self.right += value
+
+    def increase_down(self, value):
+        self.down += value
+
+    def increase_left(self, value):
+        self.increase_right(-value)
+
+    def increase_up(self, value):
+        self.increase_down(-value)
+
+    def reverse_right(self):
+        self.right = -self.right
+
+    def reverse_down(self):
+        self.down = -self.down
+
 
 class CarAcceleration:
+    # TODO: modify it to change the total speed of the game
+    SAMPLE_ACCELERATION_VALUE = 5
     """
     the instant acceleration for a car
     """
@@ -70,16 +90,22 @@ class Car:
 
     def turn_left(self):
         # TODO: modify to fill real velocity change
-        self.velocity.right -= 2
+        self.velocity.increase_left(CarAcceleration.SAMPLE_ACCELERATION_VALUE)
 
     def turn_right(self):
         # TODO: modify to fill real velocity change
-        self.velocity.right += 2
+        self.velocity.increase_right(CarAcceleration.SAMPLE_ACCELERATION_VALUE)
 
     def turn_up(self):
         # TODO: modify to fill real velocity change
-        self.velocity.down -= 2
+        self.velocity.increase_up(CarAcceleration.SAMPLE_ACCELERATION_VALUE)
 
     def turn_down(self):
         # TODO: modify to fill real velocity change
-        self.velocity.down += 2
+        self.velocity.increase_down(CarAcceleration.SAMPLE_ACCELERATION_VALUE)
+
+    def rebound_horizontally(self):
+        self.velocity.reverse_right()
+
+    def rebound_vertically(self):
+        self.velocity.reverse_down()
