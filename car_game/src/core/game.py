@@ -64,7 +64,7 @@ class CarGame:
                 self._deal_with_key_down(event)
 
         self._move_player_car()
-        self._refresh_screen()
+        self.render()
 
         return self._get_observation(), self._get_reward(), self._get_terminal()
 
@@ -90,12 +90,16 @@ class CarGame:
             print(f'[event] down key pushed.')
             self.player_car.turn_down()
 
+        if event.key == K_r:
+            print(f'[event] `R` key pushed.')
+            self.reset()
+
     def _move_player_car(self):
         # move the object
         self.position = self.position.move(self.player_car.velocity.to_pygame_speed())
         self.__deal_with_boarder_situation()
 
-    def _refresh_screen(self):
+    def render(self):
         # fill bg
         self.screen.fill(self.color_bg)
         # 更新图像
@@ -122,6 +126,16 @@ class CarGame:
     def _get_terminal(self):
         # TODO: fill with correct logic
         return 0
+
+    def reset(self):
+        # TODO: fill with correct logic to reset the game
+        self._init_setting()
+        self._init_player_car()
+
+    def destroy(self):
+        # TODO: fill with correct logic to destroy game
+        pass
+
 
 def start_game():
     car_game_instance = CarGame()
