@@ -3,6 +3,8 @@
 
 # Basic Setting
 GAME_TITLE = 'Reinforcement Car'
+GAME_STEP_INTERVAL = 50
+
 
 # Screen Setting
 GAME_SCREEN_WIDTH = 640

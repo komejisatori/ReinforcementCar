@@ -5,8 +5,11 @@ from pygame.locals import *
 import config.resource as RESOURCE
 import config.game as GAME_SETTING
 
-from core.car import Car
+from core.car import Car, CarControlAction
 from core.enviroment import EnvironmentPosition
+
+from core.observation import Observation, Reward
+
 
 
 class CarGame:
@@ -45,14 +48,25 @@ class CarGame:
 
         # Main Loop
         while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    exit()
-                if event.type == KEYDOWN:
-                    self._deal_with_key_down(event)
+            self.step(action=CarControlAction.ACTION_NONE, training=False)
 
-            self._move_player_car()
-            self._refresh_screen()
+    def step(self, action: CarControlAction, training=True):
+        """
+        game forward
+        :param action:
+        :param training:
+        :return:
+        """
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+            if event.type == KEYDOWN:
+                self._deal_with_key_down(event)
+
+        self._move_player_car()
+        self._refresh_screen()
+
+        return self._get_observation(), self._get_reward(), self._get_terminal()
 
     def _deal_with_key_down(self, event):
         """
@@ -89,14 +103,25 @@ class CarGame:
         # 更新界面
         pygame.display.flip()
         # 延时
-        pygame.time.delay(50)
+        pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
 
     def __deal_with_boarder_situation(self):
         if self.position.left < 0 or self.position.right > self.map_width:
             self.player_car.rebound_horizontally()
         if self.position.top < 0 or self.position.bottom > self.map_height:
-            self.player_car.rebound_vertically()\
+            self.player_car.rebound_vertically()
 
+    def _get_observation(self):
+        # TODO: fill with correct logic
+        return Observation()
+
+    def _get_reward(self):
+        # TODO: fill with correct logic
+        return Reward()
+
+    def _get_terminal(self):
+        # TODO: fill with correct logic
+        return 0
 
 def start_game():
     car_game_instance = CarGame()
