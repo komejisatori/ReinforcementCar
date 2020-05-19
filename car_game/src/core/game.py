@@ -27,7 +27,7 @@ class CarGameEngine:
         self.screen = pygame.display.set_mode(self.map_size)
 
         # background
-        self.color_bg = (255, 255, 255)
+        self.color_bg = (199, 237, 204)
 
         # player car
         self.img_car = pygame.image.load(RESOURCE.IMAGE_CAR_FILE_PATH)
