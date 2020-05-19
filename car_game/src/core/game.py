@@ -6,20 +6,16 @@ import config.resource as RESOURCE
 import config.game as GAME_SETTING
 
 from core.car import Car, CarControlAction
-from core.enviroment import EnvironmentPosition
+from core.enviroment import EnvironmentPosition, Environment
 
 from core.observation import Observation, Reward
 
 
-
-class CarGame:
-
+class CarGameEngine:
     def __init__(self):
         self._init_setting()
-        self._init_player_car()
 
     def _init_setting(self):
-
         pygame.init()
         pygame.display.set_caption(GAME_SETTING.GAME_TITLE)
         img_icon = pygame.image.load(RESOURCE.IMAGE_ICON_FILE_PATH)
@@ -36,36 +32,78 @@ class CarGame:
         # player car
         self.img_car = pygame.image.load(RESOURCE.IMAGE_CAR_FILE_PATH)
         self.img_car = pygame.transform.scale(self.img_car, (GAME_SETTING.GAME_CAR_WIDTH, GAME_SETTING.GAME_CAR_HEIGHT))
+        self.player_car_position = self.img_car.get_rect()
+        # TODO: fill logic of start point
+        self.player_car_start_point = EnvironmentPosition(20, 20)
 
-        # 获得图像的位置矩形
-        self.position = self.img_car.get_rect()
+    def render(self, player_car: Car, environment: Environment):
+        # fill bg
+        self._render_background()
+        # fill environment
+        self._render_environment(environment)
+        # update player car
+        self._render_player_car(player_car)
+
+        pygame.display.flip()
+        pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
+
+    def _render_background(self):
+        self.screen.fill(self.color_bg)
+
+    def _render_environment(self, environment: Environment):
+        # TODO: fill with logic
+        pass
+
+    def _render_player_car(self, player_car):
+        position_delta = [
+            player_car.position.x - self.player_car_position.left,
+            player_car.position.y - self.player_car_position.top
+        ]
+        self.player_car_position = self.player_car_position.move(position_delta)
+        self.screen.blit(self.img_car, self.player_car_position)
+
+class CarGame:
+    game_engine: CarGameEngine
+    player_car: Car
+    environment: Environment
+
+    def __init__(self):
+        self._init_game_engine()
+        self._init_player_car()
+        self._init_environment()
+
+    def _init_game_engine(self):
+        self.game_engine = CarGameEngine()
 
     def _init_player_car(self):
-        self.start_point = EnvironmentPosition(20, 20)
-        self.player_car = Car(self.start_point)
+        self.player_car = Car(self.game_engine.player_car_start_point, GAME_SETTING.GAME_CAR_WIDTH, GAME_SETTING.GAME_CAR_HEIGHT)
+
+    def _init_environment(self):
+        self.environment = Environment()
 
     def run(self):
-
         # Main Loop
         while True:
             self.step(action=CarControlAction.ACTION_NONE, training=False)
 
     def step(self, action: CarControlAction, training=True):
         """
-        game forward
+        one step
         :param action:
         :param training:
         :return:
         """
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                exit()
-            if event.type == KEYDOWN:
-                self._deal_with_key_down(event)
+        if not training:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    exit()
+                if event.type == KEYDOWN:
+                    self._deal_with_key_down(event)
+        else:
+            self._deal_with_action(action)
 
         self._move_player_car()
-        self.render()
-
+        self.game_engine.render(self.player_car, self.environment)
         return self._get_observation(), self._get_reward(), self._get_terminal()
 
     def _deal_with_key_down(self, event):
@@ -94,25 +132,23 @@ class CarGame:
             print(f'[event] `R` key pushed.')
             self.reset()
 
+    def _deal_with_action(self, action):
+        if action == CarControlAction.ACTION_TURN_LEFT:
+            self.player_car.turn_left()
+        elif action == CarControlAction.ACTION_TURN_RIGHT:
+            self.player_car.turn_right()
+        else:
+            pass
+
     def _move_player_car(self):
         # move the object
-        self.position = self.position.move(self.player_car.velocity.to_pygame_speed())
+        self.player_car.move()
         self.__deal_with_boarder_situation()
 
-    def render(self):
-        # fill bg
-        self.screen.fill(self.color_bg)
-        # 更新图像
-        self.screen.blit(self.img_car, self.position)
-        # 更新界面
-        pygame.display.flip()
-        # 延时
-        pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
-
     def __deal_with_boarder_situation(self):
-        if self.position.left < 0 or self.position.right > self.map_width:
+        if self.player_car.body_left < 0 or self.player_car.body_right > self.game_engine.map_width:
             self.player_car.rebound_horizontally()
-        if self.position.top < 0 or self.position.bottom > self.map_height:
+        if self.player_car.body_top < 0 or self.player_car.body_bottom > self.game_engine.map_height:
             self.player_car.rebound_vertically()
 
     def _get_observation(self):

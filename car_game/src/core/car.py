@@ -74,11 +74,15 @@ class Car:
     velocity: CarVelocity
     acceleration: CarAcceleration
     position: EnvironmentPosition
+    width: int
+    height: int
 
-    def __init__(self, position: EnvironmentPosition):
+    def __init__(self, position: EnvironmentPosition, width, height):
         self.velocity = CarVelocity.get_static_velocity()
         self.acceleration = CarAcceleration.get_zero_acceleration()
         self.position = position
+        self.width = width
+        self.height = height
 
     def receive_control(self, action: CarControlAction = CarControlAction.ACTION_NONE):
         if action == CarControlAction.ACTION_TURN_LEFT:
@@ -109,3 +113,23 @@ class Car:
 
     def rebound_vertically(self):
         self.velocity.reverse_down()
+
+    def move(self):
+        self.position.x += self.velocity.right
+        self.position.y += self.velocity.down
+
+    @property
+    def body_left(self):
+        return self.position.x
+
+    @property
+    def body_right(self):
+        return self.position.x + self.width
+
+    @property
+    def body_top(self):
+        return self.position.y
+
+    @property
+    def body_bottom(self):
+        return self.position.y + self.height

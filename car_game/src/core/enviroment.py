@@ -18,3 +18,9 @@ class EnvironmentPosition:
         self.x = x
         self.y = y
 
+
+class Environment:
+    """
+    the environment information which contains barriers, destinations, etc
+    """
+    pass
