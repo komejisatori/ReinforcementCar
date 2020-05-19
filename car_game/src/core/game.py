@@ -6,7 +6,8 @@ import config.resource as RESOURCE
 import config.game as GAME_SETTING
 
 from core.car import Car, CarControlAction
-from core.enviroment import EnvironmentPosition, Environment
+from core.enviroment import Environment
+from core.base import Position
 
 from core.observation import Observation, Reward
 
@@ -34,7 +35,7 @@ class CarGameEngine:
         self.img_car = pygame.transform.scale(self.img_car, (GAME_SETTING.GAME_CAR_WIDTH, GAME_SETTING.GAME_CAR_HEIGHT))
         self.player_car_position = self.img_car.get_rect()
         # TODO: fill logic of start point
-        self.player_car_start_point = EnvironmentPosition(20, 20)
+        self.player_car_start_point = Position(20, 20)
 
     def render(self, player_car: Car, environment: Environment):
         # fill bg
@@ -79,7 +80,7 @@ class CarGame:
                               GAME_SETTING.GAME_CAR_HEIGHT)
 
     def _init_environment(self):
-        self.environment = Environment()
+        self.environment = Environment(None, None, None)
 
     def run(self):
         # Main Loop
@@ -104,7 +105,7 @@ class CarGame:
 
         self._move_player_car()
         self.game_engine.render(self.player_car, self.environment)
-        return self._get_observation(), self._get_reward(), self._get_terminal()
+        return self.environment.get_observation(self.player_car), self.environment.get_reward(), self.environment.get_terminal()
 
     def _deal_with_key_down(self, event):
         """
@@ -150,18 +151,6 @@ class CarGame:
             self.player_car.rebound_horizontally()
         if self.player_car.body_top < 0 or self.player_car.body_bottom > self.game_engine.map_height:
             self.player_car.rebound_vertically()
-
-    def _get_observation(self):
-        # TODO: fill with correct logic
-        return Observation()
-
-    def _get_reward(self):
-        # TODO: fill with correct logic
-        return Reward()
-
-    def _get_terminal(self):
-        # TODO: fill with correct logic
-        return 0
 
     def reset(self):
         # TODO: fill with correct logic to reset the game

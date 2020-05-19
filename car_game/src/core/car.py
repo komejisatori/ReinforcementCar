@@ -1,4 +1,4 @@
-from core.enviroment import EnvironmentPosition
+from core.base import Position
 
 
 class CarVelocity:
@@ -73,11 +73,11 @@ class Car:
 
     velocity: CarVelocity
     acceleration: CarAcceleration
-    position: EnvironmentPosition
+    position: Position
     width: int
     height: int
 
-    def __init__(self, position: EnvironmentPosition, width, height):
+    def __init__(self, position: Position, width, height):
         self.velocity = CarVelocity.get_static_velocity()
         self.acceleration = CarAcceleration.get_zero_acceleration()
         self.position = position

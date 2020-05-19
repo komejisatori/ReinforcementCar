@@ -1,3 +1,8 @@
+from typing import List
+
+from core.base import Position
+from core.car import Car
+from core.observation import Observation, Reward
 
 
 class EnvironmentMap:
@@ -7,20 +12,44 @@ class EnvironmentMap:
     pass
 
 
-class EnvironmentPosition:
-    """
-    the position in the map
-    """
+class Barrier:
     x: int
     y: int
+    width: int
+    height: int
 
-    def __init__(self, x: int = 0, y: int = 0):
+    def __init__(self, x, y, width, height):
         self.x = x
         self.y = y
+        self.width = width
+        self.height = height
 
 
 class Environment:
     """
     the environment information which contains barriers, destinations, etc
     """
-    pass
+    origin: Position
+    destination: Position
+    barrier_list: List[Barrier]
+
+    def __init__(self, origin: Position, destination: Position, barrier_list: List[Barrier]):
+        self.origin = origin
+        self.destination = destination
+        self.barrier_list = barrier_list
+
+    @staticmethod
+    def generate_default_barrier_list():
+        pass
+
+    def get_observation(self, player_car: Car):
+        # TODO: fill with correct logic
+        return Observation()
+
+    def get_reward(self):
+        # TODO: fill with correct logic
+        return Reward()
+
+    def get_terminal(self):
+        # TODO: fill with correct logic
+        return 0
