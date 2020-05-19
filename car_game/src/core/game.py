@@ -68,9 +68,7 @@ class CarGame:
     environment: Environment
 
     def __init__(self):
-        self._init_game_engine()
-        self._init_player_car()
-        self._init_environment()
+        self.reset()
 
     def _init_game_engine(self):
         self.game_engine = CarGameEngine()
@@ -165,8 +163,9 @@ class CarGame:
 
     def reset(self):
         # TODO: fill with correct logic to reset the game
-        self._init_setting()
+        self._init_game_engine()
         self._init_player_car()
+        self._init_environment()
 
     def destroy(self):
         # TODO: fill with correct logic to destroy game
