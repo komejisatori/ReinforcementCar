@@ -62,6 +62,7 @@ class CarGameEngine:
         self.player_car_position = self.player_car_position.move(position_delta)
         self.screen.blit(self.img_car, self.player_car_position)
 
+
 class CarGame:
     game_engine: CarGameEngine
     player_car: Car
@@ -74,7 +75,8 @@ class CarGame:
         self.game_engine = CarGameEngine()
 
     def _init_player_car(self):
-        self.player_car = Car(self.game_engine.player_car_start_point, GAME_SETTING.GAME_CAR_WIDTH, GAME_SETTING.GAME_CAR_HEIGHT)
+        self.player_car = Car(self.game_engine.player_car_start_point, GAME_SETTING.GAME_CAR_WIDTH,
+                              GAME_SETTING.GAME_CAR_HEIGHT)
 
     def _init_environment(self):
         self.environment = Environment()
