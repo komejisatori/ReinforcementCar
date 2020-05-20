@@ -1,7 +1,6 @@
 from enum import Enum
 
 import pygame
-import sys
 from pygame.locals import *
 
 import config.resource as RESOURCE
@@ -10,8 +9,6 @@ import config.game as GAME_SETTING
 from core.car import Car, CarControlAction
 from core.enviroment import Environment
 from core.base import Position
-
-from core.observation import Observation, Reward
 
 
 class CarGameEngine:
@@ -45,11 +42,11 @@ class CarGameEngine:
         :return:
         """
         self.img_cover = pygame.image.load(RESOURCE.IMAGE_COVER_FILE_PATH)
-        self.img_cover = pygame.transform.scale(self.img_cover, (GAME_SETTING.GAME_SCREEN_WIDTH, GAME_SETTING.GAME_SCREEN_HEIGHT))
+        self.img_cover = pygame.transform.scale(self.img_cover,
+                                                (GAME_SETTING.GAME_SCREEN_WIDTH, GAME_SETTING.GAME_SCREEN_HEIGHT))
         self.screen.blit(self.img_cover, self.img_cover.get_rect())
         pygame.display.flip()
         pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
-
 
     def render(self, player_car: Car, environment: Environment):
         # fill bg
