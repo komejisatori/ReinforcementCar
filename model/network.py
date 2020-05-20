@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-import torch.nn.funtional as F
-from .config import LAYERS
+import torch.nn.functional as F
+from config import LAYERS
 
 class RLNetwork(nn.Module):
 
@@ -15,7 +15,7 @@ class RLNetwork(nn.Module):
         self.input = nn.Linear(input_node, self.layer_config[0])
         self.hidden = []
         for i in range(len(self.layer_config) - 1):
-            self.hidden.append(nn.Linear(self.layer_config[i-1], self.layer_config[i]))
+            self.hidden.append(nn.Linear(self.layer_config[i], self.layer_config[i+1]))
         self.hidden = nn.Sequential(*self.hidden)
         self.output = nn.Linear(self.layer_config[-1], output_node)
     
