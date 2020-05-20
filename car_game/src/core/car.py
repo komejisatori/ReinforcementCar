@@ -1,3 +1,5 @@
+from enum import Enum
+
 from core.base import Position
 
 
@@ -60,8 +62,8 @@ class CarAcceleration:
         return CarAcceleration()
 
 
-class CarControlAction:
-    ACTION_NONE = 0
+class CarControlAction(Enum):
+    ACTION_IDLE = 0
     ACTION_TURN_LEFT = 1
     ACTION_TURN_RIGHT = 2
 
@@ -84,7 +86,7 @@ class Car:
         self.width = width
         self.height = height
 
-    def receive_control(self, action: CarControlAction = CarControlAction.ACTION_NONE):
+    def receive_control(self, action: CarControlAction = CarControlAction.ACTION_IDLE):
         if action == CarControlAction.ACTION_TURN_LEFT:
             self.turn_left()
         elif action == CarControlAction.ACTION_TURN_RIGHT:

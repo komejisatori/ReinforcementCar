@@ -1,3 +1,5 @@
+from enum import Enum
+
 import pygame
 import sys
 from pygame.locals import *
@@ -64,12 +66,22 @@ class CarGameEngine:
         self.screen.blit(self.img_car, self.player_car_position)
 
 
+class GameStatus(Enum):
+    NotStarted = 0
+    Running = 1
+    Failed = 2
+    Success = 3
+    Destroyed = 4
+
+
 class CarGame:
     game_engine: CarGameEngine
     player_car: Car
     environment: Environment
+    game_status: GameStatus
 
     def __init__(self):
+        self.game_status = GameStatus.NotStarted
         self.reset()
 
     def _init_game_engine(self):
@@ -85,7 +97,7 @@ class CarGame:
     def run(self):
         # Main Loop
         while True:
-            self.step(action=CarControlAction.ACTION_NONE, training=False)
+            self.step(action=CarControlAction.ACTION_IDLE, training=False)
 
     def step(self, action: CarControlAction, training=True):
         """
@@ -94,6 +106,7 @@ class CarGame:
         :param training:
         :return:
         """
+        assert self.game_status == GameStatus.Running
         if not training:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -105,7 +118,8 @@ class CarGame:
 
         self._move_player_car()
         self.game_engine.render(self.player_car, self.environment)
-        return self.environment.get_observation(self.player_car), self.environment.get_reward(), self.environment.get_terminal()
+        return self.environment.get_observation(
+            self.player_car), self.environment.get_reward(), self.environment.get_terminal()
 
     def _deal_with_key_down(self, event):
         """
@@ -157,10 +171,11 @@ class CarGame:
         self._init_game_engine()
         self._init_player_car()
         self._init_environment()
+        self.game_status = GameStatus.Running
 
     def destroy(self):
         # TODO: fill with correct logic to destroy game
-        pass
+        self.game_status = GameStatus.Destroyed
 
 
 def start_game():
