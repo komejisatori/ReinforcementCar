@@ -39,6 +39,18 @@ class CarGameEngine:
         # TODO: fill logic of start point
         self.player_car_start_point = Position(20, 20)
 
+    def _render_cover(self):
+        """
+        not used for now
+        :return:
+        """
+        self.img_cover = pygame.image.load(RESOURCE.IMAGE_COVER_FILE_PATH)
+        self.img_cover = pygame.transform.scale(self.img_cover, (GAME_SETTING.GAME_SCREEN_WIDTH, GAME_SETTING.GAME_SCREEN_HEIGHT))
+        self.screen.blit(self.img_cover, self.img_cover.get_rect())
+        pygame.display.flip()
+        pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
+
+
     def render(self, player_car: Car, environment: Environment):
         # fill bg
         self._render_background()
