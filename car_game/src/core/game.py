@@ -8,7 +8,7 @@ import config.game as GAME_SETTING
 
 from core.car import Car, CarControlAction
 from core.enviroment import Environment
-from core.base import Position
+from core.geometry import Point
 
 
 class CarGameEngine:
@@ -34,7 +34,7 @@ class CarGameEngine:
         self.img_car = pygame.transform.scale(self.img_car, (GAME_SETTING.GAME_CAR_WIDTH, GAME_SETTING.GAME_CAR_HEIGHT))
         self.player_car_position = self.img_car.get_rect()
         # TODO: fill logic of start point
-        self.player_car_start_point = Position(20, 20)
+        self.player_car_start_point = Point(20, 20)
 
     def _render_cover(self):
         """

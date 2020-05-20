@@ -1,6 +1,6 @@
 import math
 
-from entity.geometry.point import Point
+from core.geometry import Point
 
 
 def rotate(p, a):

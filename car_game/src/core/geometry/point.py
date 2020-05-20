@@ -1,6 +1,6 @@
-class Position:
+class Point:
     """
-    the position in the map
+    the point in the map
     """
     x: int
     y: int

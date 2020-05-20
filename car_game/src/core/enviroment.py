@@ -1,6 +1,6 @@
 from typing import List
 
-from core.base import Position
+from core.geometry import Point
 from core.car import Car
 from core.observation import Observation, Reward
 
@@ -29,11 +29,11 @@ class Environment:
     """
     the environment information which contains barriers, destinations, etc
     """
-    origin: Position
-    destination: Position
+    origin: Point
+    destination: Point
     barrier_list: List[Barrier]
 
-    def __init__(self, origin: Position, destination: Position, barrier_list: List[Barrier]):
+    def __init__(self, origin: Point, destination: Point, barrier_list: List[Barrier]):
         self.origin = origin
         self.destination = destination
         self.barrier_list = barrier_list

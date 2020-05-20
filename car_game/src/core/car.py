@@ -1,6 +1,6 @@
 from enum import Enum
 
-from core.base import Position
+from core.geometry import Point
 
 
 class CarVelocity:
@@ -75,11 +75,11 @@ class Car:
 
     velocity: CarVelocity
     acceleration: CarAcceleration
-    position: Position
+    position: Point
     width: int
     height: int
 
-    def __init__(self, position: Position, width, height):
+    def __init__(self, position: Point, width, height):
         self.velocity = CarVelocity.get_static_velocity()
         self.acceleration = CarAcceleration.get_zero_acceleration()
         self.position = position
