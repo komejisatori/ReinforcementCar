@@ -8,6 +8,7 @@ from core.car import Car, CarControlAction, CarTerminal
 from core.enviroment import EnvironmentMap
 from core.geometry import Point
 import pygame
+import pygame.gfxdraw
 from pygame.locals import *
 
 class GameStatus(Enum):
@@ -79,6 +80,7 @@ class CarGame:
             i = (i + 1) % len(GAME_SETTING.List)
 
 
+
     def step(self, action: CarControlAction, training=True):
         """
         one step
@@ -117,6 +119,7 @@ class CarGame:
         self._render_background()
         self._render_environment(self.environment_map)
         self._render_cars(self.player_car)
+        self._render_observations(self.player_car)
         #self._render_player_car(self.player_car)
         pygame.display.flip()
 
@@ -126,25 +129,23 @@ class CarGame:
     def _render_environment(self, environment:EnvironmentMap, color=(0,0,0)):
         left_lines = [p.to_pair() for p in environment.left_barrier_line]
         right_lines = [p.to_pair() for p in environment.right_barrier_line]
-        pygame.draw.lines(self.screen, color, False, left_lines)
-        pygame.draw.lines(self.screen, color, False, right_lines)
+        pygame.draw.aalines(self.screen, color, False, left_lines)
+        pygame.draw.aalines(self.screen, color, False, right_lines)
         des_line = environment.destinationLine
         color_des = (255, 210, 0)
-        pygame.draw.line(self.screen, color_des, des_line.p1.to_pair(), des_line.p2.to_pair())
+        pygame.draw.aaline(self.screen, color_des, des_line.p1.to_pair(), des_line.p2.to_pair())
 
     def _render_cars(self, car:Car, color=(0,0,0)):
-        car_position = (car.position.x-car.width/2, car.position.y-car.height/2)
-        car_size = (car.width, car.height)
-        car_rect = pygame.Rect(car_position, car_size)
-        pygame.draw.rect(self.screen, color, car_rect, 1)
+        car_vertex_list = [car.get_left_front_point().to_pair(), car.get_right_front_point().to_pair(),
+                           car.get_right_behind_point().to_pair(), car.get_left_behind_point().to_pair()]
+        # pygame.gfxdraw.aapolygon(self.screen, car_vertex_list, color)
+        pygame.draw.polygon(self.screen, color, car_vertex_list)
+        # pygame.gfxdraw.filled_polygon(self.screen, car_vertex_list, color)
 
-    # def _render_player_car(self, player_car):
-    #     position_delta = [
-    #         player_car.position.x - self.player_car_position.left,
-    #         player_car.position.y - self.player_car_position.top
-    #     ]
-    #     self.player_car_position = self.player_car_position.move(position_delta)
-    #     self.screen.blit(self.img_car, self.player_car_position)
+    def _render_observations(self, car:Car, color=(0,137,167), radius = 5):
+        observation_pos = car.get_observation_pos()
+        for p in observation_pos:
+            pygame.draw.circle(self.screen, color, p, radius)
 
 
 def start_game():

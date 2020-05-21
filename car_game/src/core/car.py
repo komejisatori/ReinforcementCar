@@ -138,10 +138,10 @@ class Car:
         return reward
 
     def _check_crash(self, env_map: EnvironmentMap):
-        l_f = self._get_left_front_point()
-        r_f = self._get_right_front_point()
-        l_b = self._get_left_behind_point()
-        r_b = self._get_right_behind_point()
+        l_f = self.get_left_front_point()
+        r_f = self.get_right_front_point()
+        l_b = self.get_left_behind_point()
+        r_b = self.get_right_behind_point()
 
         for i in range(len(env_map.left_barrier_line) - 1):
             line = Line(env_map.left_barrier_line[i], env_map.left_barrier_line[i + 1])
@@ -156,26 +156,39 @@ class Car:
         return False
 
     def _check_success(self, env_map: EnvironmentMap):
-        l_f = self._get_left_front_point()
-        r_f = self._get_right_front_point()
-        l_b = self._get_left_behind_point()
-        r_b = self._get_right_behind_point()
+        l_f = self.get_left_front_point()
+        r_f = self.get_right_front_point()
+        l_b = self.get_left_behind_point()
+        r_b = self.get_right_behind_point()
 
         if utils.is_intersect(env_map.destinationLine, l_f, l_b, r_f, r_b):
             return True
         return False
 
-    def _get_left_front_point(self):
+    def get_left_front_point(self):
         return self.position + utils.rotate(Point(self.height / 2, self.width / 2), self.direction)
 
-    def _get_right_front_point(self):
+    def get_right_front_point(self):
         return self.position + utils.rotate(Point(self.height / 2, 0 - self.width / 2), self.direction)
 
-    def _get_left_behind_point(self):
+    def get_left_behind_point(self):
         return self.position + utils.rotate(Point(0 - self.height / 2, self.width / 2), self.direction)
 
-    def _get_right_behind_point(self):
+    def get_right_behind_point(self):
         return self.position + utils.rotate(Point(0 - self.height / 2, 0 - self.width / 2), self.direction)
+
+    def get_observation_pos(self):
+        dirs = [self.direction - PI / 4,
+                self.direction - PI / 6,
+                self.direction,
+                self.direction + PI / 6,
+                self.direction + PI / 4]
+        pos_list = []
+        for i in range(len(dirs)):
+            observation_x = round(math.cos(dirs[i]) * self.observation[i] + self.position.x)
+            observation_y = round(math.sin(dirs[i]) * self.observation[i] + self.position.y)
+            pos_list.append((observation_x, observation_y))
+        return pos_list
 
     def output_car_info(self):
         print("pos: ", self.position.x, self.position.y)

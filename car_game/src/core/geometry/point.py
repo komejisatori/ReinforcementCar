@@ -19,4 +19,4 @@ class Point:
         return self.x * p.y - self.y * p.x
 
     def to_pair(self):
-        return (self.x, self.y)
+        return (round(self.x), round(self.y))
