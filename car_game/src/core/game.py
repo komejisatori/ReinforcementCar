@@ -133,7 +133,7 @@ class CarGame:
         pygame.draw.line(self.screen, color_des, des_line.p1.to_pair(), des_line.p2.to_pair())
 
     def _render_cars(self, car:Car, color=(0,0,0)):
-        car_position = (car.position.x, car.position.y)
+        car_position = (car.position.x-car.width/2, car.position.y-car.height/2)
         car_size = (car.width, car.height)
         car_rect = pygame.Rect(car_position, car_size)
         pygame.draw.rect(self.screen, color, car_rect, 1)
