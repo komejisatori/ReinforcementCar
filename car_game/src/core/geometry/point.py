@@ -17,3 +17,6 @@ class Point:
 
     def cross(self, p):
         return self.x * p.y - self.y * p.x
+
+    def to_pair(self):
+        return (self.x, self.y)

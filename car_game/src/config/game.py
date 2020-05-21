@@ -3,7 +3,7 @@
 
 # Basic Setting
 GAME_TITLE = 'Reinforcement Car'
-GAME_STEP_INTERVAL = 5
+GAME_STEP_INTERVAL = 50
 
 
 # Screen Setting
