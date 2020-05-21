@@ -40,8 +40,8 @@ class CarGame:
 
     def _init_game(self):
         pygame.init()
-        img_icon = pygame.image.load(RESOURCE.IMAGE_ICON_FILE_PATH)
-        pygame.display.set_icon(img_icon)
+        # img_icon = pygame.image.load(RESOURCE.IMAGE_ICON_FILE_PATH)
+        # pygame.display.set_icon(img_icon)
         pygame.display.set_caption(GAME_SETTING.GAME_TITLE)
 
     def _init_render(self):
@@ -58,24 +58,23 @@ class CarGame:
         # Main Loop
         i = 0
         while True:
+            if self.game_status != GameStatus.Running:
+                self.reset()
+
             if GAME_SETTING.List[i] == 0:
                 self.step(action=CarControlAction.ACTION_IDLE, training=True)
-                # print("idle")
             elif GAME_SETTING.List[i] == 1:
                 self.step(action=CarControlAction.ACTION_TURN_LEFT, training=True)
-                # print("left")
             elif GAME_SETTING.List[i] == 2:
                 self.step(action=CarControlAction.ACTION_TURN_RIGHT, training=True)
-                print("right")
 
-            self.player_car.output_car_info()
+            # self.player_car.output_car_info()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     exit()
                 if event.type == KEYDOWN:
                     pass
             self.render()
-            # time.sleep(1.0 / GAME_SETTING.GAME_STEP_INTERVAL)
             pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
             i = (i + 1) % len(GAME_SETTING.List)
 
@@ -120,6 +119,7 @@ class CarGame:
         self._render_environment(self.environment_map)
         self._render_cars(self.player_car)
         self._render_observations(self.player_car)
+        self._render_reward_terminal(self.player_car)
         #self._render_player_car(self.player_car)
         pygame.display.flip()
 
@@ -138,14 +138,26 @@ class CarGame:
     def _render_cars(self, car:Car, color=(0,0,0)):
         car_vertex_list = [car.get_left_front_point().to_pair(), car.get_right_front_point().to_pair(),
                            car.get_right_behind_point().to_pair(), car.get_left_behind_point().to_pair()]
-        # pygame.gfxdraw.aapolygon(self.screen, car_vertex_list, color)
-        pygame.draw.polygon(self.screen, color, car_vertex_list)
-        # pygame.gfxdraw.filled_polygon(self.screen, car_vertex_list, color)
+        pygame.gfxdraw.aapolygon(self.screen, car_vertex_list, color)
+        # pygame.draw.polygon(self.screen, color, car_vertex_list)
+        pygame.gfxdraw.filled_polygon(self.screen, car_vertex_list, color)
 
-    def _render_observations(self, car:Car, color=(0,137,167), radius = 5):
+    def _render_observations(self, car:Car, color=(0,137,167), radius = 2):
         observation_pos = car.get_observation_pos()
         for p in observation_pos:
             pygame.draw.circle(self.screen, color, p, radius)
+
+    def _render_reward_terminal(self, car:Car):
+        font_obj = pygame.font.SysFont('arial', 18)  # 通过字体文件获得字体对象
+
+        reward_terminal = f"reward: {car.reward:.2f} terminal: {car.terminal.value}"
+        reward_surface_obj = font_obj.render(reward_terminal, True, (0,0,0))  # 配置要显示的文字
+
+        reward_rect_obj = reward_surface_obj.get_rect()  # 获得要显示的对象的rect
+
+        reward_rect_obj.topleft = (2, 0)  # 设置显示对象的坐标
+
+        self.screen.blit(reward_surface_obj, reward_rect_obj)
 
 
 def start_game():

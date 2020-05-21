@@ -24,6 +24,6 @@ class EnvironmentMap:
         self.total_length = utils.calculate_length(self.left_barrier_line)
 
     def dist_to_destination(self, p: Point):
-        index = utils.get_closest_point(p, self.left_barrier_line)
-        dist = utils.calculate_length(self.left_barrier_line[index:])
+        index, offset = utils.get_closest_point(p, self.left_barrier_line)
+        dist = offset + utils.calculate_length(self.left_barrier_line[index + 1:])
         return dist

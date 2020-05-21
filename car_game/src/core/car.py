@@ -70,7 +70,7 @@ class Car:
         self.terminal = CarTerminal.Running
 
     def receive_control(self, action: CarControlAction = CarControlAction.ACTION_IDLE):
-        dt = 1.0 / GAME_SETTING.GAME_STEP_INTERVAL
+        dt = GAME_SETTING.GAME_STEP_INTERVAL / 1000
         if action == CarControlAction.ACTION_TURN_LEFT:
             self.acc_w = 0 - GAME_SETTING.GAME_CAR_W_ACC
             self.acc_v = GAME_SETTING.GAME_CAR_V_ACC_LR
@@ -118,17 +118,11 @@ class Car:
 
         observation = []
         for direction in dirs:
-            dist = utils.intersect_ray_line(self.position, direction, env_map.left_barrier_line)
-            if dist is not None:
-                observation.append(min(dist, GAME_SETTING.MAX_OBSERVATION))
-                continue
+            dist_left = utils.intersect_ray_line(self.position, direction, env_map.left_barrier_line)
 
-            dist = utils.intersect_ray_line(self.position, direction, env_map.right_barrier_line)
-            if dist is not None:
-                observation.append(min(dist, GAME_SETTING.MAX_OBSERVATION))
-                continue
+            dist_right = utils.intersect_ray_line(self.position, direction, env_map.right_barrier_line)
 
-            observation.append(GAME_SETTING.MAX_OBSERVATION)
+            observation.append(min(GAME_SETTING.MAX_OBSERVATION, dist_left, dist_right))
 
         return observation
 

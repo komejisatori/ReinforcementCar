@@ -1,5 +1,5 @@
 import math
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
@@ -58,16 +58,32 @@ def calculate_length(p_list: List[Point]):
     return total_len
 
 
-def get_closest_point(p: Point, p_list: List[Point]):
-    min_dist = float("INF")
-    min_index = -1
-    for i, point in enumerate(p_list):
-        dist = distance_between_points(p, point)
-        if dist < min_dist:
-            min_dist = dist
-            min_index = i
+def get_closest_point(p: Point, p_list: List[Point]) -> Tuple[int, float]:
+    """
+    Returns (k, offset) meaning the closest point in on segment
+    (p_list[k], p_list[k + 1]) and its distance between p_list[k + 1] is `offset`.
+    """
 
-    return min_index
+    # Initialize to distance between p_list[0]
+    min_dist = distance_between_points(p, p_list[0])
+    index, offset = 0, distance_between_points(p_list[0], p_list[1])
+    for i in range(len(p_list) - 1):
+        a, b = p_list[i], p_list[i + 1]
+        # Check dist(P, B)
+        dist = distance_between_points(p, b)
+        if dist < min_dist:
+            min_dist, index, offset = dist, i, 0.0
+        # Check closest point in segment (if exists)
+        ab = b - a
+        pb = b - p
+        ab_l = distance_between_points(a, b)
+        t = pb.dot(ab) / ab_l
+        if 0 <= t <= ab_l:
+            dist = math.sqrt(pb.dot(pb) - t ** 2)
+            if dist < min_dist:
+                min_dist, index, offset = dist, i, t
+
+    return index, offset
 
 
 def distance_between_points(p1: Point, p2: Point):
