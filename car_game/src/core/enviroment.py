@@ -1,55 +1,29 @@
 from typing import List
 
-from core.geometry import Point
-from core.car import Car
-from core.observation import Observation, Reward
-
+from core.geometry import Point, Line
+import config.game as GAME_SETTING
+from core.geometry import utils
 
 class EnvironmentMap:
-    """
-    the environment map info in the game
-    """
-    pass
+    left_barrier_line: List[Point]
+    right_barrier_line: List[Point]
+    destination_line: Line
 
+    total_length: float
 
-class Barrier:
-    x: int
-    y: int
-    width: int
-    height: int
+    def __init__(self):
+        self.left_barrier_line = []
+        self.right_barrier_line = []
 
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
+        for (x, y) in GAME_SETTING.BARRIER_LEFT_LINE:
+            self.left_barrier_line.append(Point(x, y))
+        for (x, y) in GAME_SETTING.BARRIER_RIGHT_LINE:
+            self.right_barrier_line.append(Point(x, y))
 
+        self.destinationLine = Line(self.left_barrier_line[-1], self.right_barrier_line[-1])
+        self.total_length = utils.calculate_length(self.left_barrier_line)
 
-class Environment:
-    """
-    the environment information which contains barriers, destinations, etc
-    """
-    origin: Point
-    destination: Point
-    barrier_list: List[Barrier]
-
-    def __init__(self, origin: Point, destination: Point, barrier_list: List[Barrier]):
-        self.origin = origin
-        self.destination = destination
-        self.barrier_list = barrier_list
-
-    @staticmethod
-    def generate_default_barrier_list():
-        pass
-
-    def get_observation(self, player_car: Car):
-        # TODO: fill with correct logic
-        return Observation()
-
-    def get_reward(self):
-        # TODO: fill with correct logic
-        return Reward()
-
-    def get_terminal(self):
-        # TODO: fill with correct logic
-        return 0
+    def dist_to_destination(self, p: Point):
+        index, offset = utils.get_closest_point(p, self.left_barrier_line)
+        dist = offset + utils.calculate_length(self.left_barrier_line[index + 1:])
+        return dist
