@@ -1,12 +1,12 @@
 from enum import Enum
 import time
 
-import config.resource as RESOURCE
-import config.game as GAME_SETTING
+import car_game.src.config.resource as RESOURCE
+import car_game.src.config.game as GAME_SETTING
 
-from core.car import Car, CarControlAction, CarTerminal
-from core.enviroment import EnvironmentMap
-from core.geometry import Point
+from car_game.src.core.car import Car, CarControlAction, CarTerminal
+from car_game.src.core.enviroment import EnvironmentMap
+from car_game.src.core.geometry import Point
 import pygame
 import pygame.gfxdraw
 from pygame.locals import *

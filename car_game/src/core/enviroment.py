@@ -1,8 +1,8 @@
 from typing import List
 
-from core.geometry import Point, Line
-import config.game as GAME_SETTING
-from core.geometry import utils
+from car_game.src.core.geometry import Point, Line
+import car_game.src.config.game as GAME_SETTING
+from car_game.src.core.geometry import utils
 
 class EnvironmentMap:
     left_barrier_line: List[Point]

@@ -3,10 +3,10 @@ import math
 from typing import List
 import numpy as np
 
-from core.geometry import Point, Line
-from core.geometry import utils
-import config.game as GAME_SETTING
-from core.enviroment import EnvironmentMap
+from car_game.src.core.geometry import Point, Line
+from car_game.src.core.geometry import utils
+import car_game.src.config.game as GAME_SETTING
+from car_game.src.core.enviroment import EnvironmentMap
 
 PI = np.pi
 
