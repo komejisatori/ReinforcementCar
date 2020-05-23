@@ -81,6 +81,13 @@ class Car:
             self.acc_w = 0
             self.acc_v = GAME_SETTING.GAME_CAR_V_ACC
 
+        # Auto-center if:
+        #   1. IDLE, or
+        #   2. LEFT when steering right, or
+        #   3. RIGHT when steering left
+        if self.w * self.acc_w <= 0:
+            self.w = 0
+
         self.w = self.w + self.acc_w * dt
         self.direction = utils.normalized_direction(self.direction + self.w * dt)
         self.v = min(self.v + self.acc_v * dt, GAME_SETTING.GAME_CAR_MAX_V)
@@ -91,7 +98,7 @@ class Car:
     def calculate_observation_reward_terminal(self, env_map: EnvironmentMap):
         self.terminal = self._calculate_terminal(env_map)
         if self.terminal == CarTerminal.Failed:
-            self.observation = GAME_SETTING.INIT_OBSERVATION
+            self.observation = self._calculate_observation(env_map)
             self.reward = -1
         elif self.terminal == CarTerminal.Success:
             self.observation = GAME_SETTING.INIT_OBSERVATION

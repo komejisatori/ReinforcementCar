@@ -61,12 +61,21 @@ class CarGame:
             if self.game_status != GameStatus.Running:
                 self.reset()
 
-            if GAME_SETTING.List[i] == 0:
-                self.step(action=CarControlAction.ACTION_IDLE, training=True)
-            elif GAME_SETTING.List[i] == 1:
-                self.step(action=CarControlAction.ACTION_TURN_LEFT, training=True)
-            elif GAME_SETTING.List[i] == 2:
-                self.step(action=CarControlAction.ACTION_TURN_RIGHT, training=True)
+            if False:
+                action = CarControlAction(GAME_SETTING.List[i])
+            else:
+                keys = pygame.key.get_pressed()
+                left_key = keys[pygame.K_LEFT]
+                right_key = keys[pygame.K_RIGHT]
+                if left_key == right_key:
+                    # Both pressed or both not pressed
+                    action = CarControlAction.ACTION_IDLE
+                elif left_key:
+                    action = CarControlAction.ACTION_TURN_LEFT
+                else:
+                    action = CarControlAction.ACTION_TURN_RIGHT
+
+            self.step(action=action, training=True)
 
             # self.player_car.output_car_info()
             for event in pygame.event.get():
