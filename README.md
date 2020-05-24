@@ -63,7 +63,7 @@ A deep learning course project of using Deep Q leaning to play a racing game
       
       You can monitor the training process since the game will be rendered.
    
-### Refrences
+### References
 - Our game was inspired by this project: https://github.com/ArztSamuel/Applying_EANNs
 - We also refered to this project: https://github.com/yenchenlin/DeepLearningFlappyBird
 - Mnih V, Kavukcuoglu K, Silver D, et al. Playing atari with deep reinforcement learning[J]. arXiv preprint arXiv:1312.5602, 2013.
