@@ -22,11 +22,11 @@ A DL course project
   
     - action:发出的动作指令，0为不转向，1为左转，2为右转
     - training:是否在训练，为False则还需要读取玩家键盘输入
+    - reward:用于显示在屏幕上的reward数值，由训练脚本提供
   
   return：
     
     - observation: 目前车辆五个方向距障碍物的距离数组[l1,l2,l3,l4,l5]
-    - reward: 奖励，正常状态为距终点的路程（不知道是否必要），归一化为0（起点）-100（终点），碰撞为-1
     - terminal: 游戏是否结束，0为未结束，1为失败，2为成功（游戏结束后不会再调用step方法）
     
 - reset()：
