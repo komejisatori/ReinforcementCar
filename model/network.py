@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
+import torch.nn.init as init
 from config import LAYERS
 
 class RLNetwork(nn.Module):
@@ -21,6 +22,15 @@ class RLNetwork(nn.Module):
             self.hidden.append(nn.Linear(self.layer_config[i], self.layer_config[i+1]))
         self.hidden = nn.Sequential(*self.hidden)
         self.output = nn.Linear(self.layer_config[-1], output_node)
+        self.weight_init()
+
+    def weight_init(self, mode='normal'):
+        initializer = normal_init
+        initializer(self.input)
+        initializer(self.output)
+        for block in self.hidden:
+            initializer(block)
+
     
     def forward(self, x):
         x = self.input(x)
@@ -52,6 +62,15 @@ def train_step(model, s_batch, a_batch, y_batch, optimizer, loss_func):
     optimizer.step()
     return loss
 
+def normal_init(m):
+    if isinstance(m, (nn.Linear, nn.Conv2d)):
+        init.normal_(m.weight, 0, 0.02)
+        if m.bias is not None:
+            m.bias.data.fill_(0)
+    elif isinstance(m, (nn.BatchNorm1d, nn.BatchNorm2d)):
+        m.weight.data.fill_(1)
+        if m.bias is not None:
+            m.bias.data.fill_(0)
 
 if __name__ == '__main__':
     print('test net')
