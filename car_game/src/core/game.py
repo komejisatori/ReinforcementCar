@@ -26,7 +26,7 @@ class CarGame:
     game_status: GameStatus
 
     def __init__(self):
-        self.game_status = GameStatus.NotStarted
+        self.game_status = GameStatus.Running
         self._init_game()
         self._init_player_car()
         self._init_environment_map()
@@ -161,6 +161,7 @@ class CarGame:
         self.__draw_text(reward_terminal)
 
     def prepare(self):
+        self.game_status = GameStatus.NotStarted
         self.__show_cover()
         if self.game_status == GameStatus.NotStarted:
             self.__prepare_left_barrier()
@@ -169,7 +170,6 @@ class CarGame:
             # TODO: draw obstacle objects
             self.game_status = GameStatus.Running
         # finish prepare, start to run
-        self.run()
 
     def __show_cover(self):
         text_alpha = 1.0
@@ -195,7 +195,7 @@ class CarGame:
             text_alpha = text_alpha + 30
             if text_alpha > 255:
                 text_alpha -= 255
-            self.__draw_text(illustration_text, 24, color=(255, 255, 0))
+            self.__draw_text(illustration_text, 24, color=(255, 255, 0, 255))
             pygame.display.flip()
             pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
 
@@ -266,3 +266,4 @@ class CarGame:
 def start_game():
     car_game_instance = CarGame()
     car_game_instance.prepare()
+    car_game_instance.run()
