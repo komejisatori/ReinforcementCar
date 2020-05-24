@@ -157,16 +157,8 @@ class CarGame:
             pygame.draw.circle(self.screen, color, p, radius)
 
     def _render_reward_terminal(self, car:Car):
-        font_obj = pygame.font.SysFont('arial', 18)  # 通过字体文件获得字体对象
-
         reward_terminal = f"reward: {car.reward:.2f} terminal: {car.terminal.value}"
-        reward_surface_obj = font_obj.render(reward_terminal, True, (0,0,0))  # 配置要显示的文字
-
-        reward_rect_obj = reward_surface_obj.get_rect()  # 获得要显示的对象的rect
-
-        reward_rect_obj.topleft = (2, 0)  # 设置显示对象的坐标
-
-        self.screen.blit(reward_surface_obj, reward_rect_obj)
+        self.__draw_text(reward_terminal)
 
     def prepare(self):
         self.__show_cover()
