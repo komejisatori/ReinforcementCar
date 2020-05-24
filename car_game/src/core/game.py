@@ -168,7 +168,78 @@ class CarGame:
 
         self.screen.blit(reward_surface_obj, reward_rect_obj)
 
+    def prepare(self):
+
+        self.__prepare_left_barrier()
+
+        self.__prepare_right_barrier()
+
+        self.environment_map.build_destination_line()
+
+        # finish prepare, start to run
+        self.run()
+
+    def __prepare_left_barrier(self):
+        # draw left barrier
+        while True:
+            enter_next_step = False
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    exit()
+                if event.type == KEYDOWN:
+                    keys = pygame.key.get_pressed()
+                    if keys[pygame.K_RETURN]:
+                        enter_next_step = True
+                if event.type == MOUSEBUTTONDOWN:
+                    pos = pygame.mouse.get_pos()
+                    current_point = Point(pos[0], pos[1])
+                    if event.button == pygame.BUTTON_LEFT:
+                        self.environment_map.extend_left_barrier_line(current_point)
+                    elif event.button == pygame.BUTTON_RIGHT:
+                        self.environment_map.cut_left_barrier_line()
+            if enter_next_step:
+                break
+            illustration_text = f"click left button to draw left barriers, right button to delete, enter to next."
+            self.render_prepare_ui(illustration_text)
+            pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
+
+    def __prepare_right_barrier(self):
+        # draw right barrier
+        while True:
+            enter_next_step = False
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    exit()
+                if event.type == KEYDOWN:
+                    keys = pygame.key.get_pressed()
+                    if keys[pygame.K_RETURN]:
+                        enter_next_step = True
+                if event.type == MOUSEBUTTONDOWN:
+                    pos = pygame.mouse.get_pos()
+                    current_point = Point(pos[0], pos[1])
+                    if event.button == pygame.BUTTON_LEFT:
+                        self.environment_map.extend_right_barrier_line(current_point)
+                    elif event.button == pygame.BUTTON_RIGHT:
+                        self.environment_map.cut_right_barrier_line()
+            if enter_next_step:
+                break
+            illustration_text = f"click left button to draw right barriers, right button to delete, enter to next."
+            self.render_prepare_ui(illustration_text)
+            pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
+
+    def render_prepare_ui(self, illustration_text=""):
+        # background
+        self.screen.fill((255, 255, 0))
+        # illustration
+        font_obj = pygame.font.SysFont('arial', 18)  # 通过字体文件获得字体对象
+        illustration_surface_obj = font_obj.render(illustration_text, True, (0, 0, 0))  # 配置要显示的文字
+        illustration_rect_obj = illustration_surface_obj.get_rect()  # 获得要显示的对象的rect
+        illustration_rect_obj.topleft = (2, 0)  # 设置显示对象的坐标
+        self.screen.blit(illustration_surface_obj, illustration_rect_obj)
+        # environment
+        self._render_environment(self.environment_map)
+        pygame.display.flip()
 
 def start_game():
     car_game_instance = CarGame()
-    car_game_instance.run()
+    car_game_instance.prepare()
