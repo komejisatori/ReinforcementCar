@@ -75,7 +75,7 @@ class CarGame:
                 else:
                     action = CarControlAction.ACTION_TURN_RIGHT
 
-            self.step(action=action, training=True)
+            self.step(action=action, reward=0, training=True)
 
             # self.player_car.output_car_info()
             for event in pygame.event.get():
@@ -89,7 +89,7 @@ class CarGame:
 
 
 
-    def step(self, action: CarControlAction, training=True):
+    def step(self, action: CarControlAction, reward, training=True):
         """
         one step
         :param action:
@@ -99,20 +99,16 @@ class CarGame:
         assert self.game_status == GameStatus.Running
         if not training:
             pass
-            # for event in pygame.event.get():
-            #     if event.type == pygame.QUIT:
-            #         exit()
-            #     if event.type == KEYDOWN:
-            #         self._deal_with_key_down(event)
         else:
+            self.player_car.reward = reward
             self.player_car.receive_control(action)
-            observation, reward, terminal = self.player_car.calculate_observation_reward_terminal(self.environment_map)
+            observation, terminal = self.player_car.calculate_observation_terminal(self.environment_map)
             if terminal == CarTerminal.Failed:
                 self.game_status = GameStatus.Failed
             elif terminal == CarTerminal.Success:
                 self.game_status = GameStatus.Success
 
-            return observation, reward, terminal
+            return observation, terminal
 
 
 
