@@ -1,4 +1,4 @@
-# ReinforcementCar
+# ReinforcementCar 🚗
 A deep learning course project of using Deep Q leaning to play a racing game
 
 - Racing game
