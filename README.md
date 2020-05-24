@@ -17,6 +17,15 @@ A deep learning course project of using Deep Q leaning to play a racing game
 
     Showing the inference state of the model in the game process.
     
+### Authors
+   
+   - [Chen Kai](https://github.com/ckmessi)
+   - [Chenguang Fang](https://github.com/fangfcg)
+   - [tenghehan](https://github.com/tenghehan)
+   - [Jun Yuan](https://github.com/yuanjunyj)
+   - [komejisatori](https://github.com/komejisatori)
+   
+
 ### Dependences
     
    We use Python 3.6 with `PyTorch` and `pygame`. Quickly install all required packages by:
