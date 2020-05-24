@@ -118,14 +118,3 @@ def main():
 if __name__ == '__main__':
     main()
 
-
-
-
-
-
-
-
-    pass
-
-if __name__ == '__main__':
-    print('training game AI')

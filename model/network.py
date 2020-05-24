@@ -42,6 +42,7 @@ class RLNetwork(nn.Module):
 
 
 
+
 def eval_step(model, status):
     status = Variable(torch.from_numpy(np.asarray(status).astype(np.float32)))
     model.eval()
