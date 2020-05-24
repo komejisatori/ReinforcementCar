@@ -20,10 +20,27 @@ class EnvironmentMap:
         for (x, y) in GAME_SETTING.BARRIER_RIGHT_LINE:
             self.right_barrier_line.append(Point(x, y))
 
-        self.destinationLine = Line(self.left_barrier_line[-1], self.right_barrier_line[-1])
+        self.build_destination_line()
         self.total_length = utils.calculate_length(self.left_barrier_line)
 
     def dist_to_destination(self, p: Point):
         index, offset = utils.get_closest_point(p, self.left_barrier_line)
         dist = offset + utils.calculate_length(self.left_barrier_line[index + 1:])
         return dist
+
+    def build_destination_line(self):
+        self.destinationLine = Line(self.left_barrier_line[-1], self.right_barrier_line[-1])
+
+    def extend_left_barrier_line(self, point: Point):
+        self.left_barrier_line.append(point)
+
+    def extend_right_barrier_line(self, point: Point):
+        self.right_barrier_line.append(point)
+
+    def cut_left_barrier_line(self):
+        if len(self.left_barrier_line) > 0:
+            self.left_barrier_line.pop()
+
+    def cut_right_barrier_line(self):
+        if len(self.right_barrier_line) > 0:
+            self.right_barrier_line.pop()

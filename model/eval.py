@@ -23,6 +23,7 @@ class CarAI():
 if __name__ == '__main__':
     AI = CarAI(model_path='./model.pt')
     game = CarGame()
+    game.prepare()
     frame = 0
     observation, reward, terminal = game.step(0, training=True)
     while True:

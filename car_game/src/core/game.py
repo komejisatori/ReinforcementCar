@@ -157,18 +157,113 @@ class CarGame:
             pygame.draw.circle(self.screen, color, p, radius)
 
     def _render_reward_terminal(self, car:Car):
-        font_obj = pygame.font.SysFont('arial', 18)  # 通过字体文件获得字体对象
-
         reward_terminal = f"reward: {car.reward:.2f} terminal: {car.terminal.value}"
-        reward_surface_obj = font_obj.render(reward_terminal, True, (0,0,0))  # 配置要显示的文字
+        self.__draw_text(reward_terminal)
 
-        reward_rect_obj = reward_surface_obj.get_rect()  # 获得要显示的对象的rect
+    def prepare(self):
+        self.game_status = GameStatus.NotStarted
+        self.__show_cover()
+        if self.game_status == GameStatus.NotStarted:
+            self.__prepare_left_barrier()
+            self.__prepare_right_barrier()
+            self.environment_map.build_destination_line()
+            # TODO: draw obstacle objects
+            self.game_status = GameStatus.Running
+        # finish prepare, start to run
 
-        reward_rect_obj.topleft = (2, 0)  # 设置显示对象的坐标
+    def __show_cover(self):
+        text_alpha = 1.0
+        while True:
+            enter_next_step = False
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    exit()
+                if event.type == KEYDOWN:
+                    keys = pygame.key.get_pressed()
+                    if keys[pygame.K_RETURN]:
+                        self.game_status = GameStatus.Running
+                    enter_next_step = True
+            if enter_next_step:
+                break
+            # background
+            self.screen.fill((0, 0, 0))
+            img_cover = pygame.image.load(RESOURCE.IMAGE_COVER_FILE_PATH)
+            img_cover = pygame.transform.scale(img_cover, (GAME_SETTING.GAME_SCREEN_WIDTH, GAME_SETTING.GAME_SCREEN_HEIGHT))
+            self.screen.blit(img_cover, img_cover.get_rect())
+            # illustration
+            illustration_text = "press ENTER key to directly start, or press other keys to edit match track."
+            text_alpha = text_alpha + 30
+            if text_alpha > 255:
+                text_alpha -= 255
+            self.__draw_text(illustration_text, 24, color=(255, 255, 0, 255))
+            pygame.display.flip()
+            pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
 
-        self.screen.blit(reward_surface_obj, reward_rect_obj)
+    def __prepare_left_barrier(self):
+        # draw left barrier
+        while True:
+            enter_next_step = False
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    exit()
+                if event.type == KEYDOWN:
+                    keys = pygame.key.get_pressed()
+                    if keys[pygame.K_RETURN]:
+                        enter_next_step = True
+                if event.type == MOUSEBUTTONDOWN:
+                    pos = pygame.mouse.get_pos()
+                    current_point = Point(pos[0], pos[1])
+                    if event.button == pygame.BUTTON_LEFT:
+                        self.environment_map.extend_left_barrier_line(current_point)
+                    elif event.button == pygame.BUTTON_RIGHT:
+                        self.environment_map.cut_left_barrier_line()
+            if enter_next_step:
+                break
+            illustration_text = f"click left button to draw left barriers, right button to delete, enter to next."
+            self.render_prepare_ui(illustration_text)
+            pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
 
+    def __prepare_right_barrier(self):
+        # draw right barrier
+        while True:
+            enter_next_step = False
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    exit()
+                if event.type == KEYDOWN:
+                    keys = pygame.key.get_pressed()
+                    if keys[pygame.K_RETURN]:
+                        enter_next_step = True
+                if event.type == MOUSEBUTTONDOWN:
+                    pos = pygame.mouse.get_pos()
+                    current_point = Point(pos[0], pos[1])
+                    if event.button == pygame.BUTTON_LEFT:
+                        self.environment_map.extend_right_barrier_line(current_point)
+                    elif event.button == pygame.BUTTON_RIGHT:
+                        self.environment_map.cut_right_barrier_line()
+            if enter_next_step:
+                break
+            illustration_text = f"click left button to draw right barriers, right button to delete, enter to next."
+            self.render_prepare_ui(illustration_text)
+            pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
+
+    def render_prepare_ui(self, illustration_text=""):
+        # background
+        self.screen.fill((255, 255, 0))
+        # illustration
+        self.__draw_text(illustration_text)
+        # environment
+        self._render_environment(self.environment_map)
+        pygame.display.flip()
+
+    def __draw_text(self, text='', font_size=18, top=2, left=0, color=(0, 0, 0)):
+        font_obj = pygame.font.SysFont('arial', font_size)  # 通过字体文件获得字体对象
+        illustration_surface_obj = font_obj.render(text, True, color)  # 配置要显示的文字
+        illustration_rect_obj = illustration_surface_obj.get_rect()  # 获得要显示的对象的rect
+        illustration_rect_obj.topleft = (top, left)  # 设置显示对象的坐标
+        self.screen.blit(illustration_surface_obj, illustration_rect_obj)
 
 def start_game():
     car_game_instance = CarGame()
+    car_game_instance.prepare()
     car_game_instance.run()
