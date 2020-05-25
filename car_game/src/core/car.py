@@ -127,6 +127,19 @@ class Car:
             return CarTerminal.Success
         return CarTerminal.Running
 
+
+    def _calculate_dist_block(self, direction, env_map: EnvironmentMap):
+        dist = GAME_SETTING.MAX_OBSERVATION
+        for block in env_map.block_list:
+            b_l_t = Point(block.position.x - block.size / 2, block.position.y - block.size / 2)
+            b_l_b = Point(block.position.x - block.size / 2, block.position.y + block.size / 2)
+            b_r_t = Point(block.position.x + block.size / 2, block.position.y - block.size / 2)
+            b_r_b = Point(block.position.x + block.size / 2, block.position.y + block.size / 2)
+            temp = utils.intersect_ray_line(self.position, direction, [b_l_t, b_l_b, b_r_b, b_r_t, b_l_t])
+            if temp < dist:
+                dist = temp
+        return dist
+
     def _calculate_observation(self, env_map: EnvironmentMap):
         dirs = [self.direction - PI / 4,
                 self.direction - PI / 6,
@@ -140,7 +153,9 @@ class Car:
 
             dist_right = utils.intersect_ray_line(self.position, direction, env_map.right_barrier_line)
 
-            observation.append(min(GAME_SETTING.MAX_OBSERVATION, dist_left, dist_right))
+            dist_block = self._calculate_dist_block(direction, env_map)
+
+            observation.append(min(GAME_SETTING.MAX_OBSERVATION, dist_left, dist_right, dist_block))
 
         return observation
 
@@ -164,6 +179,16 @@ class Car:
             line = Line(env_map.right_barrier_line[i], env_map.right_barrier_line[i + 1])
             if utils.is_intersect(line, l_f, l_b, r_f, r_b):
                 return True
+
+        for block in env_map.block_list:
+            b_l_t = Point(block.position.x - block.size / 2, block.position.y - block.size / 2)
+            b_l_b = Point(block.position.x - block.size / 2, block.position.y + block.size / 2)
+            b_r_t = Point(block.position.x + block.size / 2, block.position.y - block.size / 2)
+            b_r_b = Point(block.position.x + block.size / 2, block.position.y + block.size / 2)
+            line_list = [Line(b_l_t, b_l_b), Line(b_l_t, b_r_t), Line(b_r_b, b_r_t), Line(b_r_b, b_l_b)]
+            for line in line_list:
+                if utils.is_intersect(line, l_f, l_b, r_f, r_b):
+                    return True
 
         return False
 

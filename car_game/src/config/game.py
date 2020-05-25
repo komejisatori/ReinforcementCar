@@ -36,5 +36,9 @@ MAX_OBSERVATION = 80
 BARRIER_LEFT_LINE = [(30, 410), (70, 410), (110, 380), (130, 300)]
 BARRIER_RIGHT_LINE = [(30, 470), (70, 470), (110, 440), (150, 400), (170, 300)]
 
+# MovingBlock
+BLOCK_SIZE = 10
+BLOCK_V = 30
+
 # Test
 List = [0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]

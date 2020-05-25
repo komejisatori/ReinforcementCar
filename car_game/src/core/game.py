@@ -37,6 +37,9 @@ class CarGame:
 
     def _init_environment_map(self):
         self.environment_map = EnvironmentMap()
+        # create moving block
+        self.environment_map.create_moving_block(Point(50, 400), Point(150, 450))
+        self.environment_map.create_moving_block(Point(130, 330), Point(155, 350))
 
     def _init_game(self):
         pygame.init()
@@ -57,6 +60,7 @@ class CarGame:
     def run(self):
         # Main Loop
         i = 0
+        j = 0
         while True:
             if self.game_status != GameStatus.Running:
                 self.reset()
@@ -76,6 +80,9 @@ class CarGame:
                     action = CarControlAction.ACTION_TURN_RIGHT
 
             self.step(action=action, reward=0, training=True)
+
+            j += 1
+            self.environment_map.update_moving_block(j * GAME_SETTING.GAME_STEP_INTERVAL / 1000.0)
 
             # self.player_car.output_car_info()
             for event in pygame.event.get():
@@ -122,6 +129,7 @@ class CarGame:
     def render(self):
         self._render_background()
         self._render_environment(self.environment_map)
+        self._render_moving_blocks(self.environment_map)
         self._render_cars(self.player_car)
         self._render_observations(self.player_car)
         self._render_reward_terminal(self.player_car)
@@ -131,14 +139,19 @@ class CarGame:
     def _render_background(self):
         self.screen.fill(self.color_bg)
 
-    def _render_environment(self, environment:EnvironmentMap, color=(0,0,0)):
+    def _render_environment(self, environment:EnvironmentMap, car_color=(0,0,0)):
         left_lines = [p.to_pair() for p in environment.left_barrier_line]
         right_lines = [p.to_pair() for p in environment.right_barrier_line]
-        pygame.draw.aalines(self.screen, color, False, left_lines)
-        pygame.draw.aalines(self.screen, color, False, right_lines)
+        pygame.draw.aalines(self.screen, car_color, False, left_lines)
+        pygame.draw.aalines(self.screen, car_color, False, right_lines)
         des_line = environment.destinationLine
         color_des = (255, 210, 0)
         pygame.draw.aaline(self.screen, color_des, des_line.p1.to_pair(), des_line.p2.to_pair())
+
+    def _render_moving_blocks(self, environment:EnvironmentMap, block_color=(0,0,0)):
+        for block in environment.block_list:
+            pygame.draw.rect(self.screen, block_color, (block.position.x - block.size / 2, block.position.y - block.size / 2, block.size, block.size), 0)
+
 
     def _render_cars(self, car:Car, color=(0,0,0)):
         car_vertex_list = [car.get_left_front_point().to_pair(), car.get_right_front_point().to_pair(),
