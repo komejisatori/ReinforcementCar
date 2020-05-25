@@ -1,7 +1,8 @@
 import torch
 from torch.autograd import Variable
 import numpy as np
-from model.network import RLNetwork
+
+from model.train import reward_system
 from car_game.src.core.game import CarGame
 from car_game.src.core.car import CarControlAction
 from model.config import *
@@ -25,7 +26,8 @@ if __name__ == '__main__':
     game = CarGame()
     game.prepare()
     frame = 0
-    observation, reward, terminal = game.step(0, training=True)
+    reward = 0
+    observation, terminal = game.step(0, reward=reward, training=True)
     while True:
         game.render()
         pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
@@ -39,7 +41,8 @@ if __name__ == '__main__':
             if action == 2:
                 car_action = CarControlAction.ACTION_TURN_RIGHT
 
-            observation, reward, terminal = game.step(car_action, training=True)
+            observation, terminal = game.step(car_action, reward=reward, training=True)
+            reward = reward_system(observation, terminal)
         if terminal.value != 0:
             game.reset()
         frame += 1

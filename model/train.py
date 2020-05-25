@@ -11,10 +11,11 @@ from collections import deque
 from model.config import *
 import random
 import pygame
+import argparse
 import car_game.src.config.game as GAME_SETTING
 from car_game.src.core.car import CarControlAction
 from car_game.src.config.game import MAX_OBSERVATION
-def main():
+def main(args):
     '''
     if os.path.exists('model.pt'):
         print('load exist model')
@@ -22,17 +23,28 @@ def main():
         target_model = torch.load('model.pt')
     else:
     '''
-    main_model = RLNetwork(LAYERS)
-    target_model = RLNetwork(LAYERS)
     lr = LR
+    epsilon = RANDOM_EPSILON
+    if args.resume:
+        print('[train] from exist model')
+        lr = lr * 0.1
+        epsilon = RANDOM_EPSILON_MIN
+        main_model = torch.load('model.pt')
+        target_model = torch.load('model.pt')
+    else:
+        main_model = RLNetwork(LAYERS)
+        target_model = RLNetwork(LAYERS)
+
     optimizer = torch.optim.Adam(main_model.parameters(), lr=lr)
     loss_func = nn.MSELoss()
     game = CarGame()
+    game.prepare()
     frame = 0
     D = deque()
+    reward = 0
 
-    observation, reward, terminal = game.step(0, training=True)
-    epsilon = RANDOM_EPSILON
+    observation, terminal = game.step(0, reward=reward, training=True)
+
     while True:
         game.render()
         pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
@@ -60,21 +72,16 @@ def main():
             car_action = CarControlAction.ACTION_TURN_LEFT
         if action == 2:
             car_action = CarControlAction.ACTION_TURN_RIGHT
-        observation, reward, terminal = game.step(car_action, training=True)
+        observation, terminal = game.step(car_action, reward=reward, training=True)
         if terminal.value != 0:
             #print('[train] game end')
             game.reset()
 
-        distance1 = max(observation[1], observation[3]) / (observation[1]+observation[3])
-        distance2 = max(observation[0], observation[4]) / (observation[0]+observation[4])
-        if reward >= 0:
-            reward = 0
-        if distance2 > 0.75:
-            reward = -0.5
+        reward = reward_system(observation, terminal)
+
         #if distance2 > 0.7:
         #    reward = -1
 
-        print(reward)
         D.append((observation_old, action, reward, observation, terminal))
         if len(D) > MEMORY:
             D.popleft()
@@ -114,7 +121,31 @@ def main():
 
         frame += 1
 
+def reward_system(observation, terminal):
+    distance1 = max(observation[1], observation[3]) / (observation[1] + observation[3])
+    distance2 = max(observation[0], observation[4]) / (observation[0] + observation[4])
+    distance3 = observation[2]
+    reward = 0
+    if terminal.value == 0:
+        reward = 0
+    if distance2 > 0.75:
+        reward = -0.5
+    if distance3 < 20:
+        reward = -0.5
+    if terminal.value == 1:
+        reward = -1
+    if terminal.value == 2:
+        reward = 1
+    return reward
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--resume', action='store_true', default=True)
+    args = parser.parse_args()
+    return args
+
 
 if __name__ == '__main__':
-    main()
+    args = parse_args()
+    main(args)
 
