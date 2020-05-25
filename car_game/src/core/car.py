@@ -109,6 +109,17 @@ class Car:
 
         return self.observation, self.reward, self.terminal
 
+    def calculate_observation_terminal(self, env_map: EnvironmentMap):
+        self.terminal = self._calculate_terminal(env_map)
+        if self.terminal == CarTerminal.Failed:
+            self.observation = self._calculate_observation(env_map)
+        elif self.terminal == CarTerminal.Success:
+            self.observation = self._calculate_observation(env_map)
+        elif self.terminal == CarTerminal.Running:
+            self.observation = self._calculate_observation(env_map)
+
+        return self.observation, self.terminal
+
     def _calculate_terminal(self, env_map: EnvironmentMap):
         if self._check_crash(env_map):
             return CarTerminal.Failed
