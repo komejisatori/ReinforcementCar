@@ -27,6 +27,8 @@ class CarGame:
 
     def __init__(self):
         self.game_status = GameStatus.Running
+        self.offset_x = 0
+        self.offset_y = 0
         self._init_game()
         self._init_player_car()
         self._init_environment_map()
@@ -120,6 +122,7 @@ class CarGame:
         self.game_status = GameStatus.Destroyed
 
     def render(self):
+        self._perspective_tracking(self.player_car.position)
         self._render_background()
         self._render_environment(self.environment_map)
         self._render_cars(self.player_car)
@@ -128,27 +131,64 @@ class CarGame:
         #self._render_player_car(self.player_car)
         pygame.display.flip()
 
+    def _perspective_tracking(self, center_pos:Point):
+        center_x = center_pos.x
+        center_y = center_pos.y
+        screen_width = GAME_SETTING.GAME_SCREEN_WIDTH
+        screen_height = GAME_SETTING.GAME_SCREEN_HEIGHT
+        map_width = GAME_SETTING.GAME_MAP_WIDTH
+        map_height = GAME_SETTING.GAME_MAP_HEIGHT
+
+        if screen_width >= map_width or center_x - screen_width/2 <= 0:
+            self.offset_x = 0
+        elif center_x + screen_width/2 >= map_width:
+            self.offset_x = map_width - screen_width
+        else:
+            self.offset_x = center_x - screen_width/2
+
+        if screen_height >= map_height or center_y - screen_height/2 <= 0:
+            self.offset_y = 0
+        elif center_y + screen_height/2 >= map_height:
+            self.offset_y = map_height - screen_height
+        else:
+            self.offset_y = center_y - screen_height/2
+
+        self.offset_x = round(self.offset_x)
+        self.offset_y = round(self.offset_y)
+
     def _render_background(self):
         self.screen.fill(self.color_bg)
 
-    def _render_environment(self, environment:EnvironmentMap, color=(0,0,0)):
+    def _render_environment(self, environment:EnvironmentMap, color=(0,0,0), tracking=True):
         left_lines = [p.to_pair() for p in environment.left_barrier_line]
         right_lines = [p.to_pair() for p in environment.right_barrier_line]
+        if tracking:
+            left_lines = [(p[0] - self.offset_x, p[1] - self.offset_y) for p in left_lines]
+            right_lines = [(p[0] - self.offset_x, p[1] - self.offset_y) for p in right_lines]
         pygame.draw.aalines(self.screen, color, False, left_lines)
         pygame.draw.aalines(self.screen, color, False, right_lines)
         des_line = environment.destinationLine
         color_des = (255, 210, 0)
-        pygame.draw.aaline(self.screen, color_des, des_line.p1.to_pair(), des_line.p2.to_pair())
+        des_line_p1 = des_line.p1.to_pair()
+        des_line_p2 = des_line.p2.to_pair()
+        if tracking:
+            des_line_p1 = (des_line_p1[0] - self.offset_x, des_line_p1[1] - self.offset_y)
+            des_line_p2 = (des_line_p2[0] - self.offset_x, des_line_p2[1] - self.offset_y)
+        pygame.draw.aaline(self.screen, color_des, des_line_p1, des_line_p2)
 
-    def _render_cars(self, car:Car, color=(0,0,0)):
+    def _render_cars(self, car:Car, color=(0,0,0), tracking=True):
         car_vertex_list = [car.get_left_front_point().to_pair(), car.get_right_front_point().to_pair(),
                            car.get_right_behind_point().to_pair(), car.get_left_behind_point().to_pair()]
+        if tracking:
+            car_vertex_list = [(p[0] - self.offset_x, p[1] - self.offset_y) for p in car_vertex_list]
         pygame.gfxdraw.aapolygon(self.screen, car_vertex_list, color)
         # pygame.draw.polygon(self.screen, color, car_vertex_list)
         pygame.gfxdraw.filled_polygon(self.screen, car_vertex_list, color)
 
-    def _render_observations(self, car:Car, color=(0,137,167), radius = 2):
+    def _render_observations(self, car:Car, color=(0,137,167), radius = 2, tracking=True):
         observation_pos = car.get_observation_pos()
+        if tracking:
+            observation_pos = [(p[0] - self.offset_x, p[1] - self.offset_y) for p in observation_pos]
         for p in observation_pos:
             pygame.draw.circle(self.screen, color, p, radius)
 
@@ -159,7 +199,9 @@ class CarGame:
     def prepare(self):
         self.game_status = GameStatus.NotStarted
         self.__show_cover()
+        self.prepare_center = Point(GAME_SETTING.GAME_SCREEN_WIDTH/2,GAME_SETTING.GAME_MAP_HEIGHT-GAME_SETTING.GAME_SCREEN_HEIGHT/2)
         if self.game_status == GameStatus.NotStarted:
+            self._perspective_tracking(self.prepare_center)
             self.__prepare_left_barrier()
             self.__prepare_right_barrier()
             self.environment_map.build_destination_line()
@@ -197,6 +239,10 @@ class CarGame:
 
     def __prepare_left_barrier(self):
         # draw left barrier
+        screen_width = GAME_SETTING.GAME_SCREEN_WIDTH
+        screen_height = GAME_SETTING.GAME_SCREEN_HEIGHT
+        map_width = GAME_SETTING.GAME_MAP_WIDTH
+        map_height = GAME_SETTING.GAME_MAP_HEIGHT
         while True:
             enter_next_step = False
             for event in pygame.event.get():
@@ -206,9 +252,27 @@ class CarGame:
                     keys = pygame.key.get_pressed()
                     if keys[pygame.K_RETURN]:
                         enter_next_step = True
+                    elif event.key == pygame.K_LEFT:
+                        if self.prepare_center.x >= screen_width / 2:
+                            self.prepare_center.x -= 20
+                            self._perspective_tracking(self.prepare_center)
+                            print("left")
+                            print(self.prepare_center.x, self.prepare_center.y)
+                    elif event.key == pygame.K_RIGHT:
+                        if self.prepare_center.x <= map_width - screen_width / 2:
+                            self.prepare_center.x += 20
+                            self._perspective_tracking(self.prepare_center)
+                    elif event.key == pygame.K_UP:
+                        if self.prepare_center.y >= screen_height / 2:
+                            self.prepare_center.y -= 20
+                            self._perspective_tracking(self.prepare_center)
+                    elif event.key == pygame.K_DOWN:
+                        if self.prepare_center.y <= map_height - screen_height / 2:
+                            self.prepare_center.y += 20
+                            self._perspective_tracking(self.prepare_center)
                 if event.type == MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
-                    current_point = Point(pos[0], pos[1])
+                    current_point = Point(pos[0] + self.offset_x, pos[1] + self.offset_y)
                     if event.button == pygame.BUTTON_LEFT:
                         self.environment_map.extend_left_barrier_line(current_point)
                     elif event.button == pygame.BUTTON_RIGHT:
@@ -221,6 +285,10 @@ class CarGame:
 
     def __prepare_right_barrier(self):
         # draw right barrier
+        screen_width = GAME_SETTING.GAME_SCREEN_WIDTH
+        screen_height = GAME_SETTING.GAME_SCREEN_HEIGHT
+        map_width = GAME_SETTING.GAME_MAP_WIDTH
+        map_height = GAME_SETTING.GAME_MAP_HEIGHT
         while True:
             enter_next_step = False
             for event in pygame.event.get():
@@ -230,9 +298,25 @@ class CarGame:
                     keys = pygame.key.get_pressed()
                     if keys[pygame.K_RETURN]:
                         enter_next_step = True
+                    elif event.key == pygame.K_LEFT:
+                        if self.prepare_center.x >= screen_width / 2:
+                            self.prepare_center.x -= 20
+                            self._perspective_tracking(self.prepare_center)
+                    elif event.key == pygame.K_RIGHT:
+                        if self.prepare_center.x <= map_width - screen_width / 2:
+                            self.prepare_center.x += 20
+                            self._perspective_tracking(self.prepare_center)
+                    elif event.key == pygame.K_UP:
+                        if self.prepare_center.y >= screen_height / 2:
+                            self.prepare_center.y -= 20
+                            self._perspective_tracking(self.prepare_center)
+                    elif event.key == pygame.K_DOWN:
+                        if self.prepare_center.y <= map_height - screen_height / 2:
+                            self.prepare_center.y += 20
+                            self._perspective_tracking(self.prepare_center)
                 if event.type == MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
-                    current_point = Point(pos[0], pos[1])
+                    current_point = Point(pos[0] + self.offset_x, pos[1] + self.offset_y)
                     if event.button == pygame.BUTTON_LEFT:
                         self.environment_map.extend_right_barrier_line(current_point)
                     elif event.button == pygame.BUTTON_RIGHT:
