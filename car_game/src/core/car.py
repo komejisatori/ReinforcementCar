@@ -10,6 +10,7 @@ from core.enviroment import EnvironmentMap
 
 PI = np.pi
 
+
 class CarControlAction(Enum):
     ACTION_IDLE = 0
     ACTION_TURN_LEFT = 1
@@ -45,6 +46,7 @@ class Car:
     acc_v: float
     acc_w: float
     position: Point
+    start_pos: Point
     width: int
     height: int
 
@@ -52,7 +54,8 @@ class Car:
     reward: float
     terminal: CarTerminal
 
-    def __init__(self):
+    def __init__(self, start_pos: Point):
+        self.start_pos = start_pos
         self.reset_car()
 
     def reset_car(self):
@@ -61,7 +64,7 @@ class Car:
         self.w = 0
         self.acc_v = GAME_SETTING.GAME_CAR_V_ACC
         self.acc_w = 0
-        self.position = Point(GAME_SETTING.GAME_CAR_START_POSX, GAME_SETTING.GAME_CAR_START_POSY)
+        self.position = Point(self.start_pos.x, self.start_pos.y)
         self.width = GAME_SETTING.GAME_CAR_WIDTH
         self.height = GAME_SETTING.GAME_CAR_HEIGHT
 
@@ -119,6 +122,10 @@ class Car:
             self.observation = self._calculate_observation(env_map)
 
         return self.observation, self.terminal
+
+    def calculate_terminal(self, env_map: EnvironmentMap):
+        self.terminal = self._calculate_terminal(env_map)
+        return self.terminal
 
     def _calculate_terminal(self, env_map: EnvironmentMap):
         if self._check_crash(env_map):
