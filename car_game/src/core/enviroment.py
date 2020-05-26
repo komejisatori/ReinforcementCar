@@ -1,9 +1,9 @@
 import math
 from typing import List
 
-from core.geometry import Point, Line
-import config.game as GAME_SETTING
-from core.geometry import utils
+from car_game.src.core.geometry import Point, Line
+import car_game.src.config.game as GAME_SETTING
+from car_game.src.core.geometry import utils
 
 
 class MovingBlock:
@@ -51,7 +51,7 @@ class EnvironmentMap:
         for (x, y) in GAME_SETTING.BARRIER_RIGHT_LINE:
             self.right_barrier_line.append(Point(x, y))
 
-        self.destinationLine = Line(self.left_barrier_line[-1], self.right_barrier_line[-1])
+        self.build_destination_line()
         self.total_length = utils.calculate_length(self.left_barrier_line)
         self.block_list = []
 
@@ -67,4 +67,21 @@ class EnvironmentMap:
     def update_moving_block(self, game_lasting_time: float):
         for block in self.block_list:
             block.update_position(game_lasting_time)
+
+    def build_destination_line(self):
+        self.destinationLine = Line(self.left_barrier_line[-1], self.right_barrier_line[-1])
+
+    def extend_left_barrier_line(self, point: Point):
+        self.left_barrier_line.append(point)
+
+    def extend_right_barrier_line(self, point: Point):
+        self.right_barrier_line.append(point)
+
+    def cut_left_barrier_line(self):
+        if len(self.left_barrier_line) > 0:
+            self.left_barrier_line.pop()
+
+    def cut_right_barrier_line(self):
+        if len(self.right_barrier_line) > 0:
+            self.right_barrier_line.pop()
 

@@ -1,4 +1,4 @@
-from core.geometry import Point
+from car_game.src.core.geometry import Point
 
 
 class Line:

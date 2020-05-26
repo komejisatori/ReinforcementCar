@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 import numpy as np
 
-from core.geometry import Point, Line
+from car_game.src.core.geometry import Point, Line
 
 PI = np.pi
 

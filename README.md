@@ -1,36 +1,71 @@
-# ReinforcementCar
-A DL course project
+# ReinforcementCar 🚗
+A deep learning course project of using Deep Q leaning to play a racing game
 
-# Task
-- Game
-赛车游戏，车辆逐渐加速，方向键左右控制方向，转向的角速度随按下方向键的时间增大，转向时逐渐减速，
-
+- Racing game
+    
+    Simple racing game with `pygame`. The vehicle accelerates gradually, the direction key `←` and `→` controls the direction left and right.
+     The steering angular speed increases with the time of pressing the direction keys.
+     
 - RL model
+    
+    A simple Deep Q learning model with `PyTorch`, including training script and pretrained model file. Training and Inference can be done with CPU only.
+    
+    The model takes the input of distances between car and obstacles in five directions to steer the car each game frame.
+    
+    
+- Model Visualization
 
-- Visualization
-模型可视化，展示运行过程中的模型推理
+    Showing the inference state of the model in the game process.
+    
+### Authors
+   
+   - [Chen Kai](https://github.com/ckmessi)
+   - [Chenguang Fang](https://github.com/fangfcg)
+   - [tenghehan](https://github.com/tenghehan)
+   - [Jun Yuan](https://github.com/yuanjunyj)
+   - [komejisatori](https://github.com/komejisatori)
+   
 
-# 接口定义
-- render()：
-  当前游戏画面渲染
-- step(action, training=True)：
-  游戏向前运行一帧
-  
-  **在这里同时也要读取玩家的键盘输入**
-  
-  params:
-  
-    - action:发出的动作指令，0为不转向，1为左转，2为右转
-    - training:是否在训练，为False则还需要读取玩家键盘输入
-  
-  return：
+### Dependences
     
-    - observation: 目前车辆五个方向距障碍物的距离数组[l1,l2,l3,l4,l5]
-    - reward: 奖励，正常状态为距终点的路程（不知道是否必要），归一化为0（起点）-100（终点），碰撞为-1
-    - terminal: 游戏是否结束，0为未结束，1为失败，2为成功（游戏结束后不会再调用step方法）
+   We use Python 3.6 with `PyTorch` and `pygame`. Quickly install all required packages by:
+   
+   ```
+   pip install -r requirements.txt
+   ```
+
+### Playing Game
+
+   If you just want to run the RL model to play the game, using:
+   ```shell script
+    python model/eval.py
+   ```
+
+### Training your own model
+   - Model sturcture
     
-- reset()：
-  重置游戏状态
-    
-- destroy():
-  退出游戏
+        If you want to use a simple model with several FC layers like us. Feel free to change the structure config [here](https://github.com/komejisatori/ReinforcementCar/blob/master/model/config.py#L2).
+         For other type of models, considering modify [network.py](https://github.com/komejisatori/ReinforcementCar/blob/master/model/network.py)
+        
+   - Deep Q learning
+        
+        We use [Deep Q learning](https://arxiv.org/abs/1312.5602) to train our model. 
+        
+        We use ϵ-greedy policy to search actions with initial ϵ = 0.9, which decays by γ = 0.9 after 100 frames. We use Adam optimizer with initial lr = 0.001, which decays by γ = 0.1 after 50000 frames.
+        Other hyper-params can be found [here](https://github.com/komejisatori/ReinforcementCar/blob/master/model/config.py#L4).
+   
+   - Training your model
+   
+      You can train your own RL model using:
+      ```shell script
+      python model/train.py
+      ```
+      
+      You can monitor the training process since the game will be rendered.
+   
+### References
+- Our game was inspired by this project: https://github.com/ArztSamuel/Applying_EANNs
+- We also refered to this project: https://github.com/yenchenlin/DeepLearningFlappyBird
+- Mnih V, Kavukcuoglu K, Silver D, et al. Playing atari with deep reinforcement learning[J]. arXiv preprint arXiv:1312.5602, 2013.
+
+
