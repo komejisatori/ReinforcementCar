@@ -202,9 +202,12 @@ class CarGame:
             des_line_p2 = (des_line_p2[0] - self.offset_x, des_line_p2[1] - self.offset_y)
         pygame.draw.aaline(self.screen, color_des, des_line_p1, des_line_p2)
 
-    def _render_moving_blocks(self, environment:EnvironmentMap, block_color=(0,0,0)):
+    def _render_moving_blocks(self, environment:EnvironmentMap, block_color=(0,0,0), tracking=True):
         for block in environment.block_list:
-            pygame.draw.rect(self.screen, block_color, (block.position.x - block.size / 2, block.position.y - block.size / 2, block.size, block.size), 0)
+            if tracking:
+                pygame.draw.rect(self.screen, block_color, (block.position.x - block.size / 2 - self.offset_x, block.position.y - block.size / 2 - self.offset_y, block.size, block.size), 0)
+            else:
+                pygame.draw.rect(self.screen, block_color, (block.position.x - block.size / 2, block.position.y - block.size / 2, block.size, block.size), 0)
 
     def _render_cars(self, car:Car, color=(0,0,0), tracking=True):
         car_vertex_list = [car.get_left_front_point().to_pair(), car.get_right_front_point().to_pair(),
@@ -228,7 +231,7 @@ class CarGame:
     def prepare(self):
         self.game_status = GameStatus.NotStarted
         self.__show_cover()
-        self.prepare_center = Point(GAME_SETTING.GAME_SCREEN_WIDTH/2,GAME_SETTING.GAME_MAP_HEIGHT-GAME_SETTING.GAME_SCREEN_HEIGHT/2)
+        self.prepare_center = Point(GAME_SETTING.GAME_SCREEN_WIDTH/2,GAME_SETTING.GAME_SCREEN_HEIGHT/2)
         if self.game_status == GameStatus.NotStarted:
             self._perspective_tracking(self.prepare_center)
             self.__prepare_left_barrier()
