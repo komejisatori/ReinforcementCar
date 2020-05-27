@@ -15,6 +15,8 @@ import argparse
 import car_game.src.config.game as GAME_SETTING
 from car_game.src.core.car import CarControlAction
 from car_game.src.config.game import MAX_OBSERVATION
+import pickle, copy
+
 def main(args):
     '''
     if os.path.exists('model.pt'):
@@ -25,12 +27,29 @@ def main(args):
     '''
     lr = LR
     epsilon = RANDOM_EPSILON
+    weights_history = []
+    loss_history = []
     if args.resume:
         print('[train] from exist model')
         lr = lr * 0.1
         epsilon = RANDOM_EPSILON_MIN
-        main_model = torch.load('model.pt')
-        target_model = torch.load('model.pt')
+
+        # reset logs
+        try:
+            with open(os.path.join("logs", "weights.pkl"), "rb") as file_weights:
+                weights_history = pickle.load(file_weights)
+                file_weights.close()
+        except:
+            print("Valid weights history files do not exists")
+        try:
+            with open(os.path.join("logs", "loss.pkl"), "rb") as file_loss:
+                loss_history = pickle.load(file_weights)
+                file_loss.close()
+        except:
+            print("Valid loss history files do not exists")
+
+        main_model = torch.load(os.path.join('model', 'model.pt'))
+        target_model = torch.load(os.path.join('model', 'model.pt'))
     else:
         main_model = RLNetwork(LAYERS)
         target_model = RLNetwork(LAYERS)
@@ -111,7 +130,11 @@ def main(args):
                     epsilon *= RANDOM_EPSILON_DECAY
                     print('[train] epsilon {}'.format(epsilon))
                 state_dict = main_model.state_dict()
-                target_model.load_state_dict(state_dict)
+                # save history
+                weights_history.append(copy.deepcopy(state_dict))
+                pickle.dump(weights_history, open(os.path.join("logs", "weights.pkl"), "wb"))
+                loss_history.append(loss.item())
+                pickle.dump(weights_history, open(os.path.join("logs", "loss.pkl"), "wb"))
                 torch.save(main_model, 'model.pt')
             if frame % DECAY_STEP == 0 and frame != 0:
                 if lr > LR_MIN:
@@ -140,7 +163,7 @@ def reward_system(observation, terminal):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--resume', action='store_true', default=True)
+    parser.add_argument('--resume', action='store_true', default=False)
     args = parser.parse_args()
     return args
 

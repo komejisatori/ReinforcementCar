@@ -9,7 +9,7 @@ BASE_DIR = os.path.join(os.path.dirname(__file__))
 DEFAULT_MODEL_PATH = os.path.join(BASE_DIR, "model_best.pt")
 
 
-class CarAI():
+class CarAI(object):
     def __init__(self, model_path=DEFAULT_MODEL_PATH):
         self.model_path = model_path
         self.model_instance = torch.load(self.model_path)

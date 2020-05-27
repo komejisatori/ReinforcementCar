@@ -10,7 +10,7 @@ from car_game.src.core.geometry import Point
 import pygame
 import pygame.gfxdraw
 from pygame.locals import *
-from model.car_ai import reward_system
+from car_game.src.model.car_ai import reward_system
 
 
 class GameStatus(Enum):
