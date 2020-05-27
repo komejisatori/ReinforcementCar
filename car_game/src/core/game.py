@@ -10,35 +10,50 @@ from car_game.src.core.geometry import Point
 import pygame
 import pygame.gfxdraw
 from pygame.locals import *
+from model.car_ai import reward_system
+
 
 class GameStatus(Enum):
     NotStarted = 0
     Running = 1
-    Failed = 2
-    Success = 3
+    ModelWin = 2
+    UserWin = 3
     Destroyed = 4
 
 
 class CarGame:
     # game_engine: CarGameEngine
+
+    # 模型驾驶的车
     player_car: Car
+    # 用户手动控制的车
+    user_car: Car
+
     environment_map: EnvironmentMap
     game_status: GameStatus
 
-    def __init__(self):
+    def __init__(self, ai_car=None):
         self.game_status = GameStatus.Running
         self.offset_x = 0
         self.offset_y = 0
         self._init_game()
         self._init_player_car()
+        self._init_user_car()
         self._init_environment_map()
         self._init_render()
+        self.ai_car = ai_car
 
     def _init_player_car(self):
-        self.player_car = Car()
+        self.player_car = Car(Point(GAME_SETTING.GAME_PLAYER_CAR_START_POSX, GAME_SETTING.GAME_PLAYER_CAR_START_POSY))
+
+    def _init_user_car(self):
+        self.user_car = Car(Point(GAME_SETTING.GAME_USER_CAR_START_POSX, GAME_SETTING.GAME_USER_CAR_START_POSY))
 
     def _init_environment_map(self):
         self.environment_map = EnvironmentMap()
+        # create moving block
+        self.environment_map.create_moving_block(Point(50, 400), Point(150, 450))
+        self.environment_map.create_moving_block(Point(130, 330), Point(155, 350))
 
     def _init_game(self):
         pygame.init()
@@ -51,71 +66,81 @@ class CarGame:
         self.map_size = self.map_width, self.map_height
         self.screen = pygame.display.set_mode(self.map_size)
         self.color_bg = (255, 255, 255)
-        # self.img_car = pygame.image.load(RESOURCE.IMAGE_CAR_FILE_PATH)
-        # self.img_car = pygame.transform.scale(self.img_car, (GAME_SETTING.GAME_CAR_WIDTH, GAME_SETTING.GAME_CAR_HEIGHT))
-        # self.player_car_position = self.img_car.get_rect()
-        # self.player_car_start_point = Point(20, 20)
 
     def run(self):
         # Main Loop
-        i = 0
+        j = 0
+        reward = 0.0
+        observation, terminal = self.step(CarControlAction.ACTION_IDLE, reward=0.0, training=True)
         while True:
-            if self.game_status != GameStatus.Running:
-                self.reset()
+            assert self.game_status == GameStatus.Running
 
-            if False:
-                action = CarControlAction(GAME_SETTING.List[i])
+            self.render()
+            pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
+
+            player_car_action = CarControlAction.ACTION_IDLE
+            action_num = self.ai_car.step(observation)
+            if action_num == 0:
+                player_car_action = CarControlAction.ACTION_IDLE
+            if action_num == 1:
+                player_car_action = CarControlAction.ACTION_TURN_LEFT
+            if action_num == 2:
+                player_car_action = CarControlAction.ACTION_TURN_RIGHT
+            observation, terminal = self.step(action=player_car_action, reward=reward, training=True)
+            reward = reward_system(observation, terminal)
+
+            keys = pygame.key.get_pressed()
+            left_key = keys[pygame.K_LEFT]
+            right_key = keys[pygame.K_RIGHT]
+            user_car_action = CarControlAction.ACTION_IDLE
+            if left_key == right_key:
+                # Both pressed or both not pressed
+                user_car_action = CarControlAction.ACTION_IDLE
+            elif left_key:
+                user_car_action = CarControlAction.ACTION_TURN_LEFT
             else:
-                keys = pygame.key.get_pressed()
-                left_key = keys[pygame.K_LEFT]
-                right_key = keys[pygame.K_RIGHT]
-                if left_key == right_key:
-                    # Both pressed or both not pressed
-                    action = CarControlAction.ACTION_IDLE
-                elif left_key:
-                    action = CarControlAction.ACTION_TURN_LEFT
-                else:
-                    action = CarControlAction.ACTION_TURN_RIGHT
+                user_car_action = CarControlAction.ACTION_TURN_RIGHT
+            self.control_user_car(action=user_car_action)
 
-            self.step(action=action, reward=0, training=True)
+            j += 1
+            self.environment_map.update_moving_block(j * GAME_SETTING.GAME_STEP_INTERVAL / 1000.0)
 
-            # self.player_car.output_car_info()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     exit()
                 if event.type == KEYDOWN:
                     pass
-            self.render()
-            pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
-            i = (i + 1) % len(GAME_SETTING.List)
-
-
 
     def step(self, action: CarControlAction, reward, training=True):
         """
         one step
         :param action:
+        :param reward:
         :param training:
         :return:
         """
-        assert self.game_status == GameStatus.Running
-        if not training:
-            pass
-        else:
-            self.player_car.reward = reward
-            self.player_car.receive_control(action)
-            observation, terminal = self.player_car.calculate_observation_terminal(self.environment_map)
-            if terminal == CarTerminal.Failed:
-                self.game_status = GameStatus.Failed
-            elif terminal == CarTerminal.Success:
-                self.game_status = GameStatus.Success
 
-            return observation, terminal
+        self.player_car.reward = reward
+        self.player_car.receive_control(action)
+        observation, terminal = self.player_car.calculate_observation_terminal(self.environment_map)
+        if terminal == CarTerminal.Failed:
+            self.player_car.reset_car()
+        elif terminal == CarTerminal.Success and self.game_status == GameStatus.Running:
+            self.game_status = GameStatus.ModelWin
 
+        return observation, terminal
 
+    def control_user_car(self, action: CarControlAction):
+        self.user_car.receive_control(action)
+        terminal = self.user_car.calculate_terminal(self.environment_map)
+        if terminal == CarTerminal.Failed:
+            self.user_car.reset_car()
+        elif terminal == CarTerminal.Success and self.game_status == GameStatus.Running:
+            self.game_status = GameStatus.UserWin
 
     def reset(self):
         self.player_car.reset_car()
+        self.user_car.reset_car()
         self.game_status = GameStatus.Running
 
     def destroy(self):
@@ -125,10 +150,11 @@ class CarGame:
         self._perspective_tracking(self.player_car.position)
         self._render_background()
         self._render_environment(self.environment_map)
+        self._render_moving_blocks(self.environment_map)
         self._render_cars(self.player_car)
+        self._render_cars(self.user_car, color=(255,0,0))
         self._render_observations(self.player_car)
         self._render_reward_terminal(self.player_car)
-        #self._render_player_car(self.player_car)
         pygame.display.flip()
 
     def _perspective_tracking(self, center_pos:Point):
@@ -176,13 +202,19 @@ class CarGame:
             des_line_p2 = (des_line_p2[0] - self.offset_x, des_line_p2[1] - self.offset_y)
         pygame.draw.aaline(self.screen, color_des, des_line_p1, des_line_p2)
 
+    def _render_moving_blocks(self, environment:EnvironmentMap, block_color=(0,0,0), tracking=True):
+        for block in environment.block_list:
+            if tracking:
+                pygame.draw.rect(self.screen, block_color, (block.position.x - block.size / 2 - self.offset_x, block.position.y - block.size / 2 - self.offset_y, block.size, block.size), 0)
+            else:
+                pygame.draw.rect(self.screen, block_color, (block.position.x - block.size / 2, block.position.y - block.size / 2, block.size, block.size), 0)
+
     def _render_cars(self, car:Car, color=(0,0,0), tracking=True):
         car_vertex_list = [car.get_left_front_point().to_pair(), car.get_right_front_point().to_pair(),
                            car.get_right_behind_point().to_pair(), car.get_left_behind_point().to_pair()]
         if tracking:
             car_vertex_list = [(p[0] - self.offset_x, p[1] - self.offset_y) for p in car_vertex_list]
         pygame.gfxdraw.aapolygon(self.screen, car_vertex_list, color)
-        # pygame.draw.polygon(self.screen, color, car_vertex_list)
         pygame.gfxdraw.filled_polygon(self.screen, car_vertex_list, color)
 
     def _render_observations(self, car:Car, color=(0,137,167), radius = 2, tracking=True):
@@ -199,7 +231,7 @@ class CarGame:
     def prepare(self):
         self.game_status = GameStatus.NotStarted
         self.__show_cover()
-        self.prepare_center = Point(GAME_SETTING.GAME_SCREEN_WIDTH/2,GAME_SETTING.GAME_MAP_HEIGHT-GAME_SETTING.GAME_SCREEN_HEIGHT/2)
+        self.prepare_center = Point(GAME_SETTING.GAME_SCREEN_WIDTH/2,GAME_SETTING.GAME_SCREEN_HEIGHT/2)
         if self.game_status == GameStatus.NotStarted:
             self._perspective_tracking(self.prepare_center)
             self.__prepare_left_barrier()
@@ -343,7 +375,7 @@ class CarGame:
         illustration_rect_obj.topleft = (top, left)  # 设置显示对象的坐标
         self.screen.blit(illustration_surface_obj, illustration_rect_obj)
 
-def start_game():
-    car_game_instance = CarGame()
+def start_game(ai_car):
+    car_game_instance = CarGame(ai_car)
     car_game_instance.prepare()
     car_game_instance.run()
