@@ -6,6 +6,7 @@ from torch.autograd import Variable
 import torch.nn.init as init
 from config import LAYERS
 
+
 class RLNetwork(nn.Module):
 
     def __init__(self, 
