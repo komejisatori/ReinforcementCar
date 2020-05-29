@@ -62,6 +62,13 @@ A deep learning course project of using Deep Q leaning to play a racing game
       ```
       
       You can monitor the training process since the game will be rendered.
+      
+   -  Visualize the model wieghts
+   
+      In the model training process, target model weights of each saving point are recorded in the `log` folder. You can visualize the change of each epoch by directly run:
+      ``` shell script
+      python visualization/vis_weights.py
+      ```
    
 ### References
 - Our game was inspired by this project: https://github.com/ArztSamuel/Applying_EANNs
