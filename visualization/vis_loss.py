@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 
 #### Please run in the bash, iteractive mode not capable in pycharm
 
-LOSS_ROOT = os.path.join("logs", "loss.pkl")
+LOSS_ROOT = os.path.join("../logs", "loss.pkl")
 
 if __name__ == "__main__":
     plt.figure(figsize=(8, 6), dpi=80)
