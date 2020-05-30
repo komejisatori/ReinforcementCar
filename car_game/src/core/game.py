@@ -79,7 +79,8 @@ class CarGame:
         reward = 0.0
         observation, terminal = self.step(CarControlAction.ACTION_IDLE, reward=0.0, training=True)
         while True:
-            assert self.game_status == GameStatus.Running
+            if self.game_status != GameStatus.Running:
+                break
 
             self.render()
             pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
@@ -116,6 +117,14 @@ class CarGame:
                     exit()
                 if event.type == KEYDOWN:
                     pass
+
+        if self.game_status == GameStatus.UserWin:
+            self.show_user_win_ui()
+            self.reset()
+            self.run()
+        elif self.game_status == GameStatus.ModelWin:
+            self.reset()
+            self.run()
 
     def step(self, action: CarControlAction, reward, training=True):
         """
@@ -380,6 +389,28 @@ class CarGame:
         illustration_rect_obj = illustration_surface_obj.get_rect()  # 获得要显示的对象的rect
         illustration_rect_obj.topleft = (top, left)  # 设置显示对象的坐标
         self.screen.blit(illustration_surface_obj, illustration_rect_obj)
+
+    def show_user_win_ui(self):
+        while True:
+            enter_next_step = False
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    exit()
+                if event.type == KEYDOWN:
+                    enter_next_step = True
+
+            if enter_next_step:
+                break
+            self.screen.fill((0, 0, 0))
+            img_win = pygame.image.load(RESOURCE.IMAGE_WIN_FILE_PATH)
+            img_win = pygame.transform.scale(img_win,
+                                               (GAME_SETTING.GAME_SCREEN_WIDTH, GAME_SETTING.GAME_SCREEN_HEIGHT))
+            self.screen.blit(img_win, img_win.get_rect())
+            illustration_text = "press ENTER key to restart"
+            self.__draw_text(illustration_text, 24, color=(255, 255, 0, 255))
+            pygame.display.flip()
+            pygame.time.delay(GAME_SETTING.GAME_STEP_INTERVAL)
+
 
 def start_game(ai_car):
     car_game_instance = CarGame(ai_car)

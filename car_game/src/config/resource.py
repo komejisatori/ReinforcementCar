@@ -11,3 +11,4 @@ RESOURCE_IMAGE_PATH = os.path.abspath(os.path.join(ROOT_DIR, RESOURCE_DIR_NAME, 
 IMAGE_COVER_FILE_PATH = os.path.join(RESOURCE_IMAGE_PATH, 'cover.jpg')
 IMAGE_CAR_FILE_PATH = os.path.join(RESOURCE_IMAGE_PATH, 'car.png')
 IMAGE_ICON_FILE_PATH = os.path.join(RESOURCE_IMAGE_PATH, 'icon.png')
+IMAGE_WIN_FILE_PATH = os.path.join(RESOURCE_IMAGE_PATH, 'win.png')
