@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 
 #### Please run in the bash, iteractive mode not capable in pycharm
 
-WEIGHTS_ROOT = os.path.join("logs", "weights.pkl")
+WEIGHTS_ROOT = os.path.join("../logs", "weights.pkl")
 
 LAYERS = [4, 4, 3]
 LAYER_NAMES = ['input', 'hidden.0', 'hidden.1', 'output']

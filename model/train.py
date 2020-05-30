@@ -2,6 +2,7 @@
 training pipeline
 """
 import os
+
 import torch
 import math
 import torch.nn as nn
@@ -36,13 +37,13 @@ def main(args):
 
         # reset logs
         try:
-            with open(os.path.join("logs", "weights.pkl"), "rb") as file_weights:
+            with open(os.path.join("../logs", "weights.pkl"), "rb") as file_weights:
                 weights_history = pickle.load(file_weights)
                 file_weights.close()
         except:
             print("Valid weights history files do not exists")
         try:
-            with open(os.path.join("logs", "loss.pkl"), "rb") as file_loss:
+            with open(os.path.join("../logs", "loss.pkl"), "rb") as file_loss:
                 loss_history = pickle.load(file_loss)
                 file_loss.close()
         except:
@@ -129,13 +130,21 @@ def main(args):
                 if epsilon > RANDOM_EPSILON_MIN:
                     epsilon *= RANDOM_EPSILON_DECAY
                     print('[train] epsilon {}'.format(epsilon))
+
+
                 state_dict = main_model.state_dict()
-                # save history
-                weights_history.append(copy.deepcopy(state_dict))
-                pickle.dump(weights_history, open(os.path.join("logs", "weights.pkl"), "wb"))
-                loss_history.append(loss.item())
-                pickle.dump(loss_history, open(os.path.join("logs", "loss.pkl"), "wb"))
+                target_model.load_state_dict(state_dict)
                 torch.save(main_model, 'model.pt')
+                # save history
+            if frame % DEMO_STEP == 0:
+
+                state_dict = main_model.state_dict()
+                weights_history.append(copy.deepcopy(state_dict))
+                print('saving')
+                pickle.dump(weights_history, open(os.path.join("../logs", "weights.pkl"), "wb"))
+                loss_history.append(loss.item())
+                pickle.dump(loss_history, open(os.path.join("../logs", "loss.pkl"), "wb"))
+
             if frame % DECAY_STEP == 0 and frame != 0:
                 if lr > LR_MIN:
                     lr = lr * LR_GAMMA

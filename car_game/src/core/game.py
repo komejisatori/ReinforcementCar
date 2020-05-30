@@ -52,8 +52,14 @@ class CarGame:
     def _init_environment_map(self):
         self.environment_map = EnvironmentMap()
         # create moving block
-        self.environment_map.create_moving_block(Point(50, 400), Point(150, 450))
-        self.environment_map.create_moving_block(Point(130, 330), Point(155, 350))
+        self.environment_map.create_moving_block(
+            Point(GAME_SETTING.POINT_1[0][0], GAME_SETTING.POINT_1[0][1]),
+            Point(GAME_SETTING.POINT_1[1][0], GAME_SETTING.POINT_1[1][1])
+        )
+        self.environment_map.create_moving_block(
+            Point(GAME_SETTING.POINT_2[0][0], GAME_SETTING.POINT_2[0][1]),
+            Point(GAME_SETTING.POINT_2[1][0], GAME_SETTING.POINT_2[1][1])
+        )
 
     def _init_game(self):
         pygame.init()
