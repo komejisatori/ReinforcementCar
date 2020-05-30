@@ -43,7 +43,7 @@ def main(args):
             print("Valid weights history files do not exists")
         try:
             with open(os.path.join("logs", "loss.pkl"), "rb") as file_loss:
-                loss_history = pickle.load(file_weights)
+                loss_history = pickle.load(file_loss)
                 file_loss.close()
         except:
             print("Valid loss history files do not exists")
@@ -134,7 +134,7 @@ def main(args):
                 weights_history.append(copy.deepcopy(state_dict))
                 pickle.dump(weights_history, open(os.path.join("logs", "weights.pkl"), "wb"))
                 loss_history.append(loss.item())
-                pickle.dump(weights_history, open(os.path.join("logs", "loss.pkl"), "wb"))
+                pickle.dump(loss_history, open(os.path.join("logs", "loss.pkl"), "wb"))
                 torch.save(main_model, 'model.pt')
             if frame % DECAY_STEP == 0 and frame != 0:
                 if lr > LR_MIN:
