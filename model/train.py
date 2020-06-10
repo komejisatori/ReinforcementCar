@@ -17,6 +17,7 @@ import car_game.src.config.game as GAME_SETTING
 from car_game.src.core.car import CarControlAction
 from car_game.src.config.game import MAX_OBSERVATION
 import pickle, copy
+import time
 
 def main(args):
     '''
@@ -26,6 +27,7 @@ def main(args):
         target_model = torch.load('model.pt')
     else:
     '''
+    time_stamp = time.time()
     lr = LR
     epsilon = RANDOM_EPSILON
     weights_history = []
@@ -62,7 +64,7 @@ def main(args):
     frame = 0
     D = deque()
     reward = 0
-
+    store_flag = False
     observation, terminal = game.step(0, reward=reward, training=True)
 
     while True:
@@ -137,13 +139,21 @@ def main(args):
                 torch.save(main_model, 'model.pt')
                 # save history
             if frame % DEMO_STEP == 0:
-
+                store_flag = not store_flag
                 state_dict = main_model.state_dict()
-                weights_history.append(copy.deepcopy(state_dict))
-                print('saving')
-                pickle.dump(weights_history, open(os.path.join("../logs", "weights.pkl"), "wb"))
-                loss_history.append(loss.item())
-                pickle.dump(loss_history, open(os.path.join("../logs", "loss.pkl"), "wb"))
+                if store_flag:
+                    weights_history.append(copy.deepcopy(state_dict))
+                    print('saving')
+                    pickle.dump(weights_history, open(os.path.join("../logs", "weights_{}.pkl".format(time_stamp)), "wb"))
+                    loss_history.append(loss.item())
+                    pickle.dump(loss_history, open(os.path.join("../logs", "loss_{}.pkl".format(time_stamp)), "wb"))
+                else:
+                    weights_history.append(copy.deepcopy(state_dict))
+                    print('saving')
+                    pickle.dump(weights_history,
+                                open(os.path.join("../logs", "weights__{}.pkl".format(time_stamp)), "wb"))
+                    loss_history.append(loss.item())
+                    pickle.dump(loss_history, open(os.path.join("../logs", "loss__{}.pkl".format(time_stamp)), "wb"))
 
             if frame % DECAY_STEP == 0 and frame != 0:
                 if lr > LR_MIN:
