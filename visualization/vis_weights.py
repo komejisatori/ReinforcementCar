@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 
 #### Please run in the bash, iteractive mode not capable in pycharm
 
-WEIGHTS_ROOT = os.path.join("../logs", "weights.pkl")
+WEIGHTS_ROOT = os.path.join("logs", "weights_fail.pkl")
 
 LAYERS = [4, 4, 3]
 LAYER_NAMES = ['input', 'hidden.0', 'hidden.1', 'output']
@@ -51,6 +51,6 @@ if __name__ == "__main__":
         nx.draw(net, pos, node_color="steelblue", with_labels=False, node_size=200, edge_color=edge_color_list,
                 width=width_list)
         plt.text(350, 450, 'Saving point: {}'.format((epoch + 1)), fontsize=10)
-        plt.pause(0.2)
+        plt.pause(0.05)
     plt.ioff()
     plt.show()
