@@ -1,18 +1,17 @@
 ## 深度学习课程大作业——Reinforcement Car
 
-
-
-
+陈凯 方晨光 滕鹤涵 袁隽 王泽润
 
 ### 简介
 
 <center>
-    <img src='./11.png' width="350">
-    <img src='./22.png' width="300">
+    <img src='./11.png' width="250">
+    <img src='./22.png' width="200">
 </center>
 
+**Reinforcement Car**是一个基于强化学习的赛车游戏AI练习项目。我们使用Python独立实现了一款简单的赛车游戏，并基于DQN**[1]**算法实现了这款游戏的一个简单的AI模型，玩家可以和AI模型进行比赛，同时我们还实现了模型状态的可视化功能。
 
-**Reinforcement Car**是一个基于强化学习的赛车游戏AI练习项目。我们使用Python独立实现了一款简单的赛车游戏，并基于DQN算法实现了这款游戏的一个简单的AI模型，玩家可以和AI模型进行比赛，同时我们还实现了模型状态的可视化功能。
+我们的项目地址 https://github.com/komejisatori/ReinforcementCar， 其中包含使用说明
 
 
 
@@ -32,7 +31,7 @@
 
 我们分赛车游戏设计，模型设计和可视化三部分来介绍相关工作。
 
-pygame是一个简单的游戏库SDL的Python版本，方便用户实现简单的2D游戏开发，我们的游戏使用pygame开发。在游戏设计方面，我们参考了一些强化学习小游戏的demo。从某款利用强化学习实现[FlappyBird](https://github.com/yenchenlin/DeepLearningFlappyBird)游戏中，我们得到启发，将模型的输出节点与游戏的输出一一对应；从某款强化学习[车辆控制](https://www.bilibili.com/video/BV1ox411x7S8?from=search&seid=11334047816925777247)的demo中，我们得到启发，使用车辆距前方的障碍距离作为输入。
+pygame是一个简单的游戏库SDL的Python版本，方便用户实现简单的2D游戏开发，我们的游戏使用pygame开发。在游戏设计方面，我们参考了一些强化学习小游戏的demo。从某款利用强化学习实现[FlappyBird](https://github.com/yenchenlin/DeepLearningFlappyBird)**[2]**游戏中，我们得到启发，将模型的输出节点与游戏的输出一一对应；从某款强化学习[车辆控制](https://www.bilibili.com/video/BV1ox411x7S8?from=search&seid=11334047816925777247)**[3]**的demo中，我们得到启发，使用车辆距前方的障碍距离作为输入。
 
 模型训练方面，我们使用了经典DQN算法对模型进行训练。DQN解决了Q-learning在电子游戏下Q Table过大的问题。算法中有Target net和Eval net两个结构完全相同的网络。通过记忆库中随机取出的状态，奖励，动作以及target net对该状态的预测值对eval net进行训练，并定时用eval net的值更新target net。我们完全使用DQN算法来训练模型，只进行了超参数的调整。
 
@@ -143,8 +142,8 @@ pygame是一个简单的游戏库SDL的Python版本，方便用户实现简单�
 我们自定义一条赛道对模型进行训练，经过5000轮左右的训练，模型基本稳定通过赛道终点。我们在展示过程中呈现了从第一次训练到第一次冲过终点线的全过程。下图左侧是训练的赛道，右侧是某次测试的赛道，其中红色是人类玩家的车辆，右侧是AI的车辆，在训练过程人类玩家的车辆没有运动。
 
 <center>
-    <img src='./77.png' width='300'>
-    <img src='./88.png' width='300'>
+    <img src='./77.png' width='250'>
+    <img src='./88.png' width='250'>
 </center>
 
 
@@ -178,12 +177,12 @@ pygame是一个简单的游戏库SDL的Python版本，方便用户实现简单�
 + 模型权重变化
 
   <center>
-      <img src='./vis60.png' width="300">
-      <img src='./vis100.png' width="300">
+      <img src='./vis60.png' width="200">
+      <img src='./vis100.png' width="200">
   </center>
   <center>
-      <img src='./vis140.png' width="300">
-      <img src='./vis200.png' width="300">
+      <img src='./vis140.png' width="200">
+      <img src='./vis200.png' width="200">
   </center>
 
   我们分别截取了网络在第80，100，200个训练步附近的网络权重示意图以及最终权重的示意图。
@@ -222,3 +221,14 @@ pygame是一个简单的游戏库SDL的Python版本，方便用户实现简单�
 通过本次深度学习大作业，我们对强化学习进行了初步学习和简单尝试，亲手搭建了一个简单的游戏场景，练习了DQN训练方法，并分析了实验的现象，从而对这一领域有了浅显的认知。我们认为强化学习相比其他深度学习任务是一片更为广阔，更具挑战性的海洋。一方面强化学习面向的任务远比视觉任务，自然语言任务等多样，且需要自己对任务进行建模与仿真，设计模型输入输出，设计奖励机制等等；另一方面这些任务更深入实际生活之中，也更加有趣和有意义。
 
 最后感谢龙老师和助教一学期的辛勤工作，使我们收获良多。
+
+
+
+### 参考文献
+
+[1] Mnih V, Kavukcuoglu K, Silver D, et al. Playing atari with deep reinforcement learning[J]. arXiv preprint arXiv:1312.5602, 2013.
+
+[2] https://github.com/yenchenlin/DeepLearningFlappyBird
+
+[3] https://www.bilibili.com/video/BV1ox411x7S8
+
